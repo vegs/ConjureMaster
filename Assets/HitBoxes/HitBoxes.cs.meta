@@ -1,0 +1,10 @@
+fileFormatVersion: 2
+guid: 0320f26a10bd2da4a9bacef655de8047
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences:
+  - upperCutHitBox: {fileID: 100000, guid: ec73f7fdcc914244592ece8f40a20671, type: 2}
+  - fwdSmashHitBox: {fileID: 100000, guid: 333af19882d275c498b4981d21583de1, type: 2}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
