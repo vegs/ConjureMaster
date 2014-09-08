@@ -138,7 +138,7 @@ public class PlayerCombat : MonoBehaviour {
 						if (Input.GetButton("Horizontal")){
 							InitiateAttackChain(4);
 						}else{
-							InitiateAttackChain(0);
+							InitiateAttackChain(3);
 						}
 					}
 				}
