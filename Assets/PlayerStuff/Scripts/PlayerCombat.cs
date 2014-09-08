@@ -22,6 +22,7 @@ public class PlayerCombat : MonoBehaviour {
 	bool fxIsOn=false;
 	
 	void Start () {
+
 		thisChar = GetComponent<Character> ().myCharacter;
 		attackChains = thisChar._attackMoves;
 		cc = GetComponent<CharacterController> ();
@@ -85,8 +86,10 @@ public class PlayerCombat : MonoBehaviour {
 						if (!currentAttackHitBox.activeSelf){
 							currentAttackHitBox.SetActive (true);
 						}
-						if (!fxIsOn && currentAttack.visualFX != null) {
-							fx.PlayFX (currentAttack.visualFX, this.transform.position);
+						if (!fxIsOn && currentAttack.visualFX != null && fx != null) {
+							//fx.GetComponent<PhotonView>().RPC ("PlayFX", PhotonTargets.All, currentAttack.visualFX, this.transform.position);
+							fx.GetComponent<PhotonView>().RPC ("PlayFX", PhotonTargets.All, this.transform.position);
+//							fx.PlayFX (currentAttack.visualFX, this.transform.position);
 							fxIsOn = true;
 						} 
 						//					CalculateTarget(currentAttackHitBox);
