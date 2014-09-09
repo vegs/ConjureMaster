@@ -4,7 +4,7 @@ using System.Collections;
 public class DefaultCharacter : CharacterData {
 
 	HitBoxes hbx = GameObject.FindObjectOfType<HitBoxes>();
-	FXPrefabs fx = GameObject.FindObjectOfType<FXPrefabs>();
+
 	public DefaultCharacter(){
 
 		characterID = 0;
@@ -125,7 +125,7 @@ public class DefaultCharacter : CharacterData {
 			false,		    				//bool hasPlayerControl
 			true,		    				//bool isAOE
 			hbx.HitBox_AOE_Big,				//GameObject hitBox
-		    fx.AOE_Slam);					//GameObject visualFX
+		    "AOESmokeFX");					//string fxName (see FXManager)
 		
 		AttackChain strongAOEAttackChain = new AttackChain (4);
 		strongAOEAttackChain.AddAttack (strongAOEAttack);

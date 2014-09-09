@@ -16,7 +16,7 @@ public class BasicAttack : AttackData {
 	             bool hasPlayerControl,
 	             bool isAOE,
 	             GameObject hitBox,
-				 GameObject visualFX)
+				 string fxName)
 	{
 		this.attackName = attackName;
 		this.dirModifier = dirModifier; 
@@ -28,6 +28,6 @@ public class BasicAttack : AttackData {
 		this.hasPlayerControl = hasPlayerControl;
 		this.isAOE = isAOE;
 		this.hitBox = hitBox;
-		this.visualFX = visualFX;
+		this.fxName = fxName;
 	}
 }

@@ -8,9 +8,22 @@ public class FXManager : MonoBehaviour {
 
 
 	[RPC]
-	public void PlayFX ( Vector3 origin){ //GameObject FX,
-		GameObject SmokeFX = (GameObject)Instantiate (AOESlamSmokeFX_Prefab, origin, Quaternion.identity);
+	public void PlayFX (string fxName, Vector3 origin){ //GameObject FX,
+		switch (fxName) 
+		{
+			case "AOESmokeFX":
+				AOESmokeFX(origin);
+				break;
+			default:
+				break;
+				
+		}
+
+		//GameObject SmokeFX = (GameObject)Instantiate (AOESlamSmokeFX_Prefab, origin, Quaternion.identity);
 		Debug.Log ("PlayFX");
 	}
 
+	public void AOESmokeFX (Vector3 origin){
+		GameObject SmokeFX = (GameObject)Instantiate (AOESlamSmokeFX_Prefab, origin, Quaternion.identity);
+	}
 }

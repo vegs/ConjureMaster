@@ -135,5 +135,10 @@ public class PlayerState : MonoBehaviour {
 		}
 	}
 
+	public void Reflect(Vector3 normal, float velocityMultiplyer){
+		_velocity = velocityMultiplyer * (_velocity - 2 * Vector3.Dot(_velocity, normal) * normal);
+		addedVelocity = velocityMultiplyer * (addedVelocity - 2 * Vector3.Dot(addedVelocity, normal) * normal);
+	}
+
 
 }

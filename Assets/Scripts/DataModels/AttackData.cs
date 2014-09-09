@@ -12,7 +12,7 @@ public class AttackData {
 	public bool hasPlayerControl = false;
 	public bool isAOE = false;
 	public GameObject hitBox = null;
-	public GameObject visualFX = null;
+	public string fxName = null;
 //	cooldown??
 
 //	
