@@ -29,12 +29,15 @@ public class PlayerState : MonoBehaviour {
 	Vector3 hitVelocity = Vector3.zero;
 	Vector3 addedVelocity = Vector3.zero;
 
+	FXManager fx = null;
+
 	// Use this for initialization
 	void Start () {
 		cc = GetComponent<CharacterController>();
 		anim = GetComponent<Animator>();
 		pm = GetComponent<PlayerMovement>();
 		pc = GetComponent<PlayerCombat>();
+		fx = GameObject.FindObjectOfType<FXManager> ();
 	}
 	
 	// Update is called once per frame
@@ -108,7 +111,7 @@ public class PlayerState : MonoBehaviour {
 	}
 
 	[RPC]
-	public void Hit(Vector3 hitDir, float hitForce){
+	public void Hit(Vector3 hitDir, float hitForce, Vector3 attackerPos){
 
 		hitForce = hitForce * ( 1 + GetComponent<Health>().damagePercent/100);
 		hitVelocity = hitForce * hitDir.normalized;
@@ -118,10 +121,13 @@ public class PlayerState : MonoBehaviour {
 			AnimatorStateInfo flinchAnim =  anim.GetCurrentAnimatorStateInfo(0);
 			anim.Play(flinchAnim.nameHash,0, 0); 
 			knockoutTime = flinch_knockoutTime; //flinch knockout time
+			fx.GetComponent<PhotonView>().RPC ("PlayFX", PhotonTargets.All, "FlinchHit" ,this.transform.position, attackerPos);
+
 		} else {
 			anim.SetBool("Flinch", false);
 			addedVelocity += hitVelocity;	
 			knockoutTime = 1f; //should depend on the attack force ideally
+			fx.GetComponent<PhotonView>().RPC ("PlayFX", PhotonTargets.All, "NormalHit" ,this.transform.position, attackerPos);
 		}
 
 		Debug.Log ("Added: " + hitVelocity);

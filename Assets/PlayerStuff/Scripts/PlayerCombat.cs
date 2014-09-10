@@ -88,7 +88,7 @@ public class PlayerCombat : MonoBehaviour {
 						}
 						if (!fxIsOn && currentAttack.fxName != null && fx != null) {
 							//fx.GetComponent<PhotonView>().RPC ("PlayFX", PhotonTargets.All, currentAttack.visualFX, this.transform.position);
-							fx.GetComponent<PhotonView>().RPC ("PlayFX", PhotonTargets.All, currentAttack.fxName,this.transform.position);
+							fx.GetComponent<PhotonView>().RPC ("PlayFX", PhotonTargets.All, currentAttack.fxName,this.transform.position, this.transform.position);
 //							fx.PlayFX (currentAttack.visualFX, this.transform.position);
 							fxIsOn = true;
 						} 

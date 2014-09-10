@@ -40,7 +40,7 @@ public class StrikeBox : MonoBehaviour {
 					}
 
 					Debug.Log (direction);
-					pv.RPC ("Hit", PhotonTargets.AllBuffered, direction, attackForce);
+					pv.RPC ("Hit", PhotonTargets.AllBuffered, direction, attackForce, this.transform.position);
 					pv.RPC ("TakeDamage", PhotonTargets.AllBuffered, attackDamage);
 					//player.Hit( direction, strength);
 				}
