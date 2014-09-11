@@ -125,7 +125,12 @@ public class PlayerState : MonoBehaviour {
 
 		} else {
 			anim.SetBool("Flinch", false);
-			addedVelocity += hitVelocity;	
+			addedVelocity += hitVelocity;
+
+			// Knock Back angle to determine which knockback-animation to play
+			float kncBckTheta = Mathf.Atan2(hitDir.x,hitDir.z);
+			anim.SetFloat("KnckBckTheta", kncBckTheta);
+
 			knockoutTime = 1f; //should depend on the attack force ideally
 			fx.GetComponent<PhotonView>().RPC ("PlayFX", PhotonTargets.All, "NormalHit" ,this.transform.position, attackerPos);
 		}
@@ -144,6 +149,20 @@ public class PlayerState : MonoBehaviour {
 	public void Reflect(Vector3 normal, float velocityMultiplyer){
 		_velocity = velocityMultiplyer * (_velocity - 2 * Vector3.Dot(_velocity, normal) * normal);
 		addedVelocity = velocityMultiplyer * (addedVelocity - 2 * Vector3.Dot(addedVelocity, normal) * normal);
+
+		float kncBckTheta = Mathf.Atan2(_velocity.x,_velocity.z);
+		anim.SetFloat("KnckBckTheta", kncBckTheta);
+
+		if(anim.GetBool ("IsHit") && !anim.GetBool("Flinch")){
+
+			float normalMag = Vector3.Dot(_velocity, normal);
+			if(normalMag < 8 && normalMag > 2) {
+				fx.GetComponent<PhotonView>().RPC ("PlayFX", PhotonTargets.All, "FlinchHit" ,this.transform.position, this.transform.position);
+			} else if (normalMag > 8) {
+				fx.GetComponent<PhotonView>().RPC ("PlayFX", PhotonTargets.All, "NormalHit" ,this.transform.position, this.transform.position);
+			}
+
+		}
 	}
 
 
