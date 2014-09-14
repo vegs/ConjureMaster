@@ -36,6 +36,7 @@ public class NetworkCharacter : Photon.MonoBehaviour {
 			//This is our player
 			stream.SendNext(transform.position);
 			stream.SendNext(transform.rotation);
+
 			stream.SendNext(anim.GetFloat("Speed"));
 			stream.SendNext(anim.GetBool("Jump"));
 			stream.SendNext(anim.GetBool("Grounded"));
@@ -49,6 +50,7 @@ public class NetworkCharacter : Photon.MonoBehaviour {
 			stream.SendNext(anim.GetBool("IsHit"));
 			stream.SendNext(anim.GetBool("Flinch"));
 
+			stream.SendNext(anim.GetFloat("KnckBckTheta"));
 
 
 
@@ -71,6 +73,7 @@ public class NetworkCharacter : Photon.MonoBehaviour {
 			anim.SetBool("IsHit", (bool) stream.ReceiveNext());
 			anim.SetBool("Flinch", (bool) stream.ReceiveNext());
 
+			anim.SetFloat("KnckBckTheta" , (float) stream.ReceiveNext());
 
 			
 		}

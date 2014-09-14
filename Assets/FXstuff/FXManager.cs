@@ -31,6 +31,8 @@ public class FXManager : MonoBehaviour {
 		Debug.Log ("PlayFX");
 	}
 
+
+
 	public void AOESmokeFX (Vector3 origin){
 		GameObject SmokeFX = (GameObject)Instantiate (AOESlamSmokeFX_Prefab, origin, Quaternion.identity);
 	}
@@ -42,4 +44,5 @@ public class FXManager : MonoBehaviour {
 	public void NormalHit (Vector3 position){
 		GameObject NormalStar = (GameObject)Instantiate (NormalStarFX_Prefab, position, Quaternion.identity);
 	}
+	
 }

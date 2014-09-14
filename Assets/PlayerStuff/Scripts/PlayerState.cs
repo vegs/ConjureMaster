@@ -31,6 +31,9 @@ public class PlayerState : MonoBehaviour {
 
 	FXManager fx = null;
 
+	public GameObject hoverText_Prefab;
+	//private ObjectLabel somescript;
+
 	// Use this for initialization
 	void Start () {
 		cc = GetComponent<CharacterController>();
@@ -38,6 +41,12 @@ public class PlayerState : MonoBehaviour {
 		pm = GetComponent<PlayerMovement>();
 		pc = GetComponent<PlayerCombat>();
 		fx = GameObject.FindObjectOfType<FXManager> ();
+
+/*		// Old method for instantiating a GUI text above a player's head
+		GameObject HoverText = (GameObject)Instantiate (hoverText_Prefab, Vector3.zero, Quaternion.identity);
+		somescript = HoverText.GetComponent<ObjectLabel>();
+		somescript.target = this.transform;
+*/
 	}
 	
 	// Update is called once per frame
@@ -83,6 +92,7 @@ public class PlayerState : MonoBehaviour {
 		if (cc.isGrounded) {
 			if (_velocity.y < 0) {
 				addedVelocity.y = (Physics.gravity.y * Time.deltaTime);
+				knockoutTime = 0;
 			}
 			addedVelocity = phys.AddFriction(addedVelocity);
 			
