@@ -6,6 +6,8 @@ public class NetworkCharacter : Photon.MonoBehaviour {
 	Quaternion realRotation = Quaternion.identity;
 
 	Animator anim;
+
+	bool gotFirstUpdate=false;
 	//float lastUpdateTime;
 	// Use this for initialization
 	void Start () {
@@ -75,7 +77,11 @@ public class NetworkCharacter : Photon.MonoBehaviour {
 
 			anim.SetFloat("KnckBckTheta" , (float) stream.ReceiveNext());
 
-			
+			if(gotFirstUpdate == false){
+				transform.position = realPosition;
+				transform.rotation = realRotation;
+				gotFirstUpdate = true;
+			}
 		}
 	}
 
