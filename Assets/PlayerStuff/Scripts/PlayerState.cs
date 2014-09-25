@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 
 public class PlayerState : MonoBehaviour {
@@ -7,6 +7,7 @@ public class PlayerState : MonoBehaviour {
 	Animator anim;
 	PlayerMovement pm;
 	PlayerCombat pc;
+	MouseLook ml;
 	GamePhysics phys = new GamePhysics();
 
 	public float flinchThreshold = 5f;
@@ -40,7 +41,9 @@ public class PlayerState : MonoBehaviour {
 		anim = GetComponent<Animator>();
 		pm = GetComponent<PlayerMovement>();
 		pc = GetComponent<PlayerCombat>();
+		ml = GetComponent<MouseLook> ();
 		fx = GameObject.FindObjectOfType<FXManager> ();
+
 
 /*		// Old method for instantiating a GUI text above a player's head
 		GameObject HoverText = (GameObject)Instantiate (hoverText_Prefab, Vector3.zero, Quaternion.identity);
@@ -52,6 +55,7 @@ public class PlayerState : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 	
+		ml.playerControl = playerControl;
 
 		knockoutTime -= Time.deltaTime;
 
@@ -66,6 +70,9 @@ public class PlayerState : MonoBehaviour {
 			playerControl = false;	
 		} else {
 			playerControl = true;		
+		}
+		if (pc.isUsingAttack && pc.currentAttack is MovementAttack) {
+			addedVelocity=Vector3.zero;
 		}
 
 	}
@@ -86,22 +93,24 @@ public class PlayerState : MonoBehaviour {
 	
 
 
+		if (pc.isUsingAttack && pc.currentAttack is MovementAttack && pc.isDangerous) {
+			MovementAttack currentAttack=(MovementAttack)pc.currentAttack;
+			_velocity = this.transform.rotation * currentAttack.moveDir.normalized * currentAttack.moveSpeed;
+		} else {
+			_velocity = moveVelocity + addedVelocity;
 
-		_velocity = moveVelocity + addedVelocity;
+			if (cc.isGrounded) {
+				if (_velocity.y < 0) {
+					addedVelocity.y = (Physics.gravity.y * Time.deltaTime);
+					knockoutTime = 0;
+				}
+				addedVelocity = phys.AddFriction (addedVelocity);
 
-		if (cc.isGrounded) {
-			if (_velocity.y < 0) {
-				addedVelocity.y = (Physics.gravity.y * Time.deltaTime);
-				knockoutTime = 0;
+			} else { 
+				addedVelocity = phys.AddGravity (addedVelocity);
+				addedVelocity = phys.AddDrag (addedVelocity);
 			}
-			addedVelocity = phys.AddFriction(addedVelocity);
-			
-		} else { 
-			addedVelocity = phys.AddGravity(addedVelocity);
-			addedVelocity = phys.AddDrag(addedVelocity);
 		}
-
-
 		dist = _velocity * Time.deltaTime;
 
 		cc.Move (dist);

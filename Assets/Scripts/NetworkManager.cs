@@ -11,6 +11,9 @@ public class NetworkManager : MonoBehaviour {
 	public float respawnTimer = 0;
 	List<string> chatMessages;
 	string currentMsg="";
+	bool toggleChat=false;
+	float chatDelay=0f;
+
 
 	void Start () {
 		spawnSpots= GameObject.FindObjectsOfType<SpawnSpot>();
@@ -74,9 +77,29 @@ public class NetworkManager : MonoBehaviour {
 				GUILayout.Label (msg);
 			}
 
-			currentMsg = GUILayout.TextField (currentMsg);
-			if (GUILayout.Button("Chat") ) {
-				AddChatMessage(PhotonNetwork.player.name + ": " +currentMsg);
+			GUI.SetNextControlName("chat");
+
+
+
+			if (toggleChat){
+				Event e = Event.current;
+				GUI.FocusControl("chat");
+				chatDelay+=Time.deltaTime;
+
+				currentMsg = GUILayout.TextField (currentMsg);
+				if (e.keyCode == KeyCode.Return && chatDelay>=0.5f){
+					if(currentMsg.Length>0)	AddChatMessage(PhotonNetwork.player.name + ": " +currentMsg);
+					chatDelay=0;
+					currentMsg="";
+					toggleChat=false;
+				}
+			}
+			if (Input.GetButtonDown("Chat")){
+				if(toggleChat){
+					toggleChat=false;
+				}else{
+					toggleChat=true;
+				}
 			}
 			GUILayout.EndVertical();
 			GUILayout.EndArea();

@@ -3,9 +3,9 @@ using System.Collections;
 
 public class MovementAttack : AttackData {
 
-	Vector3 moveDir;
-	float moveSpeed;
-	float moveDist;
+	public Vector3 moveDir;
+	public float moveSpeed;
+	public float moveDist;
 
 	public MovementAttack (
 	             string attackName,
@@ -18,6 +18,7 @@ public class MovementAttack : AttackData {
 	             bool hasPlayerControl,
 	             bool isAOE,
 	             GameObject hitBox,
+				 string fxName,
 	             Vector3 moveDir,
 	             float moveSpeed,
 	             float moveDist)
@@ -32,6 +33,7 @@ public class MovementAttack : AttackData {
 		this.hasPlayerControl = hasPlayerControl;
 		this.isAOE = isAOE;
 		this.hitBox = hitBox;
+		this.fxName = fxName;
 		this.moveDir = moveDir;
 		this.moveSpeed = moveSpeed;
 		this.moveDist = moveDist;

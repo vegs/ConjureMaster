@@ -11,6 +11,7 @@ public class PlayerCombat : MonoBehaviour {
 	public AttackChain currentAttackChain = null;
 	public bool isUsingAttack = false;
 	public bool isInAttackChain = false;
+	public bool isDangerous = false;
 	int attackID = 0;
 	float currentAttackTime = 0;
 	public CharacterData thisChar = null;
@@ -91,7 +92,8 @@ public class PlayerCombat : MonoBehaviour {
 							fx.GetComponent<PhotonView>().RPC ("PlayFX", PhotonTargets.All, currentAttack.fxName,this.transform.position, this.transform.position);
 //							fx.PlayFX (currentAttack.visualFX, this.transform.position);
 							fxIsOn = true;
-						} 
+						}
+						isDangerous=true;
 						//					CalculateTarget(currentAttackHitBox);
 						
 					}
@@ -99,7 +101,8 @@ public class PlayerCombat : MonoBehaviour {
 					else{
 						if (currentAttackHitBox.activeSelf){
 							currentAttackHitBox.SetActive (false);
-						}				
+						}
+						isDangerous=false;
 					}
 				}
 				
@@ -125,9 +128,11 @@ public class PlayerCombat : MonoBehaviour {
 				if (cc.isGrounded && cc != null){
 					//Weak attacks (LMB)
 					if(Input.GetButton("WeakAttack") ) {
-						
-						if (Input.GetButton("Horizontal")){
+						if (Input.GetButton("Vertical")){
 							InitiateAttackChain(1);
+						}
+						else if (Input.GetButton("Horizontal")){
+							InitiateAttackChain(2);
 						}else{
 							InitiateAttackChain(0);
 						}
@@ -136,9 +141,9 @@ public class PlayerCombat : MonoBehaviour {
 					else if(Input.GetButton("StrongAttack")) {
 					
 						if (Input.GetButton("Horizontal")){
-							InitiateAttackChain(4);
+							InitiateAttackChain(5);
 						}else{
-							InitiateAttackChain(3);
+							InitiateAttackChain(4);
 						}
 					}
 				}

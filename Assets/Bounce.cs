@@ -12,8 +12,8 @@ public class Bounce : MonoBehaviour {
 		if (hit.gameObject.tag == "Terrain"){
 			Debug.DrawRay(hit.collider.transform.position -new Vector3(10,10,10) , hit.normal ,Color.yellow) ;
 		}
-		Debug.DrawRay(gameObject.transform.position , hit.normal ,Color.yellow) ;
-		Debug.Log (hit.normal);
+		//Debug.DrawRay(gameObject.transform.position , hit.normal ,Color.yellow) ;
+		//Debug.Log (hit.normal);
 		if (hit.normal.y < 0.5f) {
 			ps.Reflect(hit.normal, 0.75f);
 		}

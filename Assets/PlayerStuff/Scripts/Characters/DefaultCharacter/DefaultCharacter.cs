@@ -45,7 +45,25 @@ public class DefaultCharacter : CharacterData {
 
 		
 		// + w : Weak sliding tackle attack
-
+		MovementAttack weakSlidingAttack = new MovementAttack(
+			"Weak Sliding Attack",
+			new Vector3 (0, 1, 2),
+			0.5f,
+			0.5f,
+			0.0f,
+			0.1f,
+			0.5f,
+			false,
+			false,
+			hbx.HitBox_Front_Big,
+			null,
+			new Vector3 (0, 0, 1),
+			30f,
+			10f);
+		
+		AttackChain weakSlidingAttackChain = new AttackChain (1);
+		weakSlidingAttackChain.AddAttack (weakSlidingAttack);
+		AddAttackChain (weakSlidingAttackChain);
 
 		// + a/d : Weak AOE attack
 		BasicAttack weakAOEAttack = new BasicAttack(    
@@ -61,7 +79,7 @@ public class DefaultCharacter : CharacterData {
 			hbx.HitBox_AOE_Big,				//GameObject hitBox
 			null);							//GameObject visualFX
 		
-		AttackChain weakAOEAttackChain = new AttackChain (1);
+		AttackChain weakAOEAttackChain = new AttackChain (2);
 		weakAOEAttackChain.AddAttack (weakAOEAttack);
 		AddAttackChain (weakAOEAttackChain);
 
@@ -81,7 +99,7 @@ public class DefaultCharacter : CharacterData {
 			hbx.HitBox_AOE_Air,				//GameObject hitBox
 		    null);							//GameObject visualFX
 		
-		AttackChain weakAOEAttack_AirChain = new AttackChain (2);
+		AttackChain weakAOEAttack_AirChain = new AttackChain (3);
 		weakAOEAttack_AirChain.AddAttack (weakAOEAttack_Air);
 		AddAttackChain (weakAOEAttack_AirChain);
 
@@ -105,7 +123,7 @@ public class DefaultCharacter : CharacterData {
 			hbx.HitBox_Front_Big,			//GameObject hitBox
 			null);							//GameObject visualFX
 		
-		AttackChain fwdSmashChain = new AttackChain (3);
+		AttackChain fwdSmashChain = new AttackChain (4);
 		fwdSmashChain.AddAttack (fwdSmash);
 		AddAttackChain (fwdSmashChain);
 
@@ -127,7 +145,7 @@ public class DefaultCharacter : CharacterData {
 			hbx.HitBox_AOE_Big,				//GameObject hitBox
 		    "AOESmokeFX");					//string fxName (see FXManager)
 		
-		AttackChain strongAOEAttackChain = new AttackChain (4);
+		AttackChain strongAOEAttackChain = new AttackChain (5);
 		strongAOEAttackChain.AddAttack (strongAOEAttack);
 		AddAttackChain (strongAOEAttackChain);
 
