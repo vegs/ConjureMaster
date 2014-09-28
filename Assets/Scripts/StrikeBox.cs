@@ -30,7 +30,7 @@ public class StrikeBox : MonoBehaviour {
 			float attackForce = myChar.thisChar.attackForce * myChar.currentAttack.forceModifier; 
 			float attackDamage = myChar.thisChar.attackPower * myChar.currentAttack.dmgModifier;
 			//not my player
-			if (!collision.GetComponent<PhotonView>().isMine || collision.GetComponent<PhotonView>().isSceneView ){
+			if (!collision.GetComponent<PhotonView>().isMine || collision.GetComponent<PhotonView>().isSceneView || collision.gameObject.tag == "Bot"){
 				if ( ps != null ) {
 					Vector3 direction = Vector3.zero;
 					if ( myChar.currentAttack.isAOE ){

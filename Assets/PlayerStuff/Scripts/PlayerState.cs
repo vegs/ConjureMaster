@@ -32,8 +32,6 @@ public class PlayerState : MonoBehaviour {
 
 	FXManager fx = null;
 
-	public GameObject hoverText_Prefab;
-	//private ObjectLabel somescript;
 
 	// Use this for initialization
 	void Start () {
@@ -43,19 +41,12 @@ public class PlayerState : MonoBehaviour {
 		pc = GetComponent<PlayerCombat>();
 		ml = GetComponent<MouseLook> ();
 		fx = GameObject.FindObjectOfType<FXManager> ();
-
-
-/*		// Old method for instantiating a GUI text above a player's head
-		GameObject HoverText = (GameObject)Instantiate (hoverText_Prefab, Vector3.zero, Quaternion.identity);
-		somescript = HoverText.GetComponent<ObjectLabel>();
-		somescript.target = this.transform;
-*/
 	}
 	
 	// Update is called once per frame
 	void Update () {
 	
-		ml.playerControl = playerControl;
+		if(ml != null) ml.playerControl = playerControl;
 
 		knockoutTime -= Time.deltaTime;
 
@@ -131,6 +122,10 @@ public class PlayerState : MonoBehaviour {
 
 	[RPC]
 	public void Hit(Vector3 hitDir, float hitForce, Vector3 attackerPos){
+
+		if (pc != null) {
+			pc.Interrupt();
+		}
 
 		hitForce = hitForce * ( 1 + GetComponent<Health>().damagePercent/100);
 		hitVelocity = hitForce * hitDir.normalized;

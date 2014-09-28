@@ -4,6 +4,9 @@ using System.Collections;
 public class BasicAttack : AttackData {
 
 
+	public BasicAttack (){
+	
+	}
 
 	public BasicAttack (
 	             string attackName,

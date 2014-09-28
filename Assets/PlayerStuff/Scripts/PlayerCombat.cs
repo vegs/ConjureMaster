@@ -12,6 +12,7 @@ public class PlayerCombat : MonoBehaviour {
 	public bool isUsingAttack = false;
 	public bool isInAttackChain = false;
 	public bool isDangerous = false;
+	bool attackInterrupted = false;
 	int attackID = 0;
 	float currentAttackTime = 0;
 	public CharacterData thisChar = null;
@@ -60,12 +61,10 @@ public class PlayerCombat : MonoBehaviour {
 			currentAttackHitBox = currentAttackChain.attackChainHitBoxes[attackID];
 			
 			if (isUsingAttack  && currentAttack != null){
-				//Debug.Log("hitbox: " + attackHitBoxes[currentAttack.attackID]);
-				
 				currentAttackTime += Time.deltaTime;
 				
-				//Attack has ended
-				if (currentAttackTime > currentAttack.preHitDelay + currentAttack.hitDuration + currentAttack.postHitDelay ){ 
+				//Attack has ended OR Interrupted
+				if (attackInterrupted || currentAttackTime > currentAttack.preHitDelay + currentAttack.hitDuration + currentAttack.postHitDelay ){ 
 					if(attackID >= currentAttackChain.subAttacks.Count - 1){
 						isUsingAttack = false;
 						isInAttackChain = false;
@@ -75,7 +74,8 @@ public class PlayerCombat : MonoBehaviour {
 						attackID++;
 					}
 					currentAttackTime = 0;
-					fxIsOn=false;
+					fxIsOn = false;
+					attackInterrupted = false;
 					if (currentAttackHitBox.activeSelf){
 						currentAttackHitBox.SetActive (false);
 					}
@@ -104,10 +104,8 @@ public class PlayerCombat : MonoBehaviour {
 						}
 						isDangerous=false;
 					}
-				}
-				
-			}
-			
+				}				
+			}	
 		}
 		
 		//No weapon. use regualr abilities
@@ -178,6 +176,11 @@ public class PlayerCombat : MonoBehaviour {
 		isUsingAttack = true;
 		currentAttackChain = attackChains[id];
 		attackID = 0;
+	}
+
+	public void Interrupt(){
+		//possibly add "if interrupatable"
+		attackInterrupted = true;
 	}
 
 }

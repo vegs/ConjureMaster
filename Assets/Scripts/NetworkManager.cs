@@ -34,12 +34,13 @@ public class NetworkManager : MonoBehaviour {
 	}
 
 	void Connect(){
-		PhotonNetwork.ConnectUsingSettings ( "ConjureMaster v001" );
+		PhotonNetwork.ConnectUsingSettings ( "ConjureMaster v002" );
 	}
 
 	void OnGUI(){
 		GUILayout.Label ( PhotonNetwork.connectionStateDetailed.ToString() );
 
+		//MENU		
 		if (PhotonNetwork.connected == false && connecting == false) {
 			GUILayout.BeginArea( new Rect(0, 0, Screen.width, Screen.height) );
 			GUILayout.BeginHorizontal();
@@ -67,8 +68,37 @@ public class NetworkManager : MonoBehaviour {
 			GUILayout.EndHorizontal();
 			GUILayout.EndArea();
 		}
-
+		//IN GAME
 		if (PhotonNetwork.connected == true && connecting == false) {
+			GUIStyle nameTagStyle = new GUIStyle();
+			nameTagStyle.fontSize = 18;
+			nameTagStyle.normal.textColor = Color.red;
+			nameTagStyle.alignment = TextAnchor.UpperCenter;
+
+			GUIStyle nameTagStyle_outline = new GUIStyle();
+			nameTagStyle_outline.fontSize = 18;
+			nameTagStyle_outline.alignment = TextAnchor.UpperCenter;
+			nameTagStyle_outline.normal.textColor = Color.black;
+			nameTagStyle.normal.textColor = Color.red;
+
+			foreach (PhotonPlayer p in PhotonNetwork.playerList){
+				GameObject pO = PhotonView.Find((p.ID * 1000) + 1).gameObject;
+				Vector3 pos = Camera.main.WorldToScreenPoint(pO.transform.position + Vector3.up*4);
+				Vector3 pos1 = pO.transform.position + Vector3.up*4 - Camera.main.transform.position;
+
+				if (Vector3.Dot(Camera.main.transform.forward, pos1) > 0){
+
+					GUI.Label (new Rect(pos.x-74, (Screen.height - pos.y) - pos.z/Camera.main.fieldOfView, 150, 150), p.name, nameTagStyle_outline);
+					GUI.Label (new Rect(pos.x-76, (Screen.height - pos.y) - pos.z/Camera.main.fieldOfView, 150, 150), p.name, nameTagStyle_outline);
+					GUI.Label (new Rect(pos.x-75, (Screen.height - pos.y - 1) - pos.z/Camera.main.fieldOfView, 150, 150), p.name, nameTagStyle_outline);
+					GUI.Label (new Rect(pos.x-75, (Screen.height - pos.y + 1) - pos.z/Camera.main.fieldOfView, 150, 150), p.name, nameTagStyle_outline);
+					GUI.Label (new Rect(pos.x-75, (Screen.height - pos.y) - pos.z/Camera.main.fieldOfView, 150, 150), p.name, nameTagStyle);
+				}
+			}
+
+
+
+
 			GUILayout.BeginArea( new Rect(0, 0, Screen.width, Screen.height) );
 			GUILayout.BeginVertical();
 			GUILayout.FlexibleSpace();	
@@ -88,7 +118,13 @@ public class NetworkManager : MonoBehaviour {
 
 				currentMsg = GUILayout.TextField (currentMsg);
 				if (e.keyCode == KeyCode.Return && chatDelay>=0.5f){
-					if(currentMsg.Length>0)	AddChatMessage(PhotonNetwork.player.name + ": " +currentMsg);
+					if(currentMsg.Length>0){
+						if(currentMsg.StartsWith("/")){
+							Command(currentMsg);
+						}else{
+							AddChatMessage(PhotonNetwork.player.name + ": " +currentMsg);
+						}
+					}
 					chatDelay=0;
 					currentMsg="";
 					toggleChat=false;
@@ -104,6 +140,7 @@ public class NetworkManager : MonoBehaviour {
 			GUILayout.EndVertical();
 			GUILayout.EndArea();
 		}
+
 	}
 
 	void OnJoinedLobby(){
@@ -125,7 +162,6 @@ public class NetworkManager : MonoBehaviour {
 		connecting = false;
 		SpawnSpot mySpawnSpot = spawnSpots[Random.Range(0,spawnSpots.Length)];
 		GameObject myPlayerGO = (GameObject) PhotonNetwork.Instantiate ("Player", mySpawnSpot.transform.position, mySpawnSpot.transform.rotation, 0);
-
 		standbyCamera.SetActive(false);
 
 		//myPlayerGO.GetComponent<OLD_PlayerMovement> ().enabled = true;
@@ -151,6 +187,40 @@ public class NetworkManager : MonoBehaviour {
 				SpawnMyPlayer();
 			}
 		}
+
+		//MENU
+		if (PhotonNetwork.connected == false && connecting == false) {
+			Screen.showCursor = true;
+			Screen.lockCursor = false;
+		}
+		//GAME
+		if (PhotonNetwork.connected == true && connecting == false) {
+			Screen.showCursor = false;
+			Screen.lockCursor = true;	
+
+			if (Input.GetButtonDown ("Menu")) {
+				standbyCamera.SetActive(true);
+				mainCamera.SetActive(false);
+				PhotonNetwork.Disconnect ();		
+			}
+		}
+	}
+
+	void Command(string cmd){
+		switch (cmd) 
+		{
+		case "/spawnbot":
+			SpawnBot ();
+			break;
+		default:
+			AddChatMessage ("Unknown oommand!");
+			break;	
+		}
+	}
+	void SpawnBot(){
+		AddChatMessage ("Spawning bot");
+		SpawnSpot mySpawnSpot = spawnSpots[Random.Range(0,spawnSpots.Length)];
+		PhotonNetwork.Instantiate ("PlayerBot", mySpawnSpot.transform.position, mySpawnSpot.transform.rotation, 0);
 	}
 
 

@@ -3,9 +3,13 @@ using System.Collections;
 
 public class MovementAttack : AttackData {
 
-	public Vector3 moveDir;
-	public float moveSpeed;
-	public float moveDist;
+	public Vector3 moveDir = new Vector3 (0, 0, 1) ;
+	public float moveSpeed = 20f;
+	public float moveDist = 10f;
+
+	public MovementAttack (){
+
+	}
 
 	public MovementAttack (
 	             string attackName,

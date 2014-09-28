@@ -22,18 +22,18 @@ public class DefaultCharacter : CharacterData {
 		 */
 
 		// + nothing/s : Weak attack
-		BasicAttack weakAttack = new BasicAttack (	    
-			"Weak Attack",		    		//string attackName
-			new Vector3 (0, 0, 1),			//Vector3 dirModifier
-			1f,		    					//float dmgModifier
-			0.01f,		    				//float forceModifier
-			0.12f,		    				//float preHitDelay
-			0.12f,		    				//float postHitDelay
-			0.1f,		    				//float hitDuration
-			false,		    				//bool hasPlayerControl
-			false,		    				//bool isAOE
-			hbx.HitBox_Front_Big,			//GameObject hitBox
-			null);							//GameObject visualFX
+		BasicAttack weakAttack = new BasicAttack ();	    
+		weakAttack.attackName = "Weak Attack";
+		weakAttack.dirModifier = new Vector3 (0, 0, 1);
+		weakAttack.dmgModifier = 1f;
+		weakAttack.forceModifier= 0.01f;
+		weakAttack.preHitDelay = 0.12f;
+		weakAttack.postHitDelay = 0.12f;
+		weakAttack.hitDuration = 0.1f;
+		weakAttack.hasPlayerControl = false;
+		weakAttack.isAOE = false;
+		weakAttack.hitBox = hbx.HitBox_Front_Big;
+		weakAttack.fxName = null;	
 			
 
 
@@ -45,40 +45,40 @@ public class DefaultCharacter : CharacterData {
 
 		
 		// + w : Weak sliding tackle attack
-		MovementAttack weakSlidingAttack = new MovementAttack(
-			"Weak Sliding Attack",
-			new Vector3 (0, 1, 2),
-			0.5f,
-			0.5f,
-			0.0f,
-			0.1f,
-			0.5f,
-			false,
-			false,
-			hbx.HitBox_Front_Big,
-			null,
-			new Vector3 (0, 0, 1),
-			30f,
-			10f);
+		MovementAttack weakSlidingAttack = new MovementAttack ();
+		weakSlidingAttack.dirModifier = new Vector3 (0, 1, 2);
+		weakSlidingAttack.dmgModifier = 0.5f;
+		weakSlidingAttack.forceModifier = 0.5f;
+		weakSlidingAttack.preHitDelay = 0;
+		weakSlidingAttack.postHitDelay = 0.1f;
+		weakSlidingAttack.hitDuration = 0.5f;
+		weakSlidingAttack.hasPlayerControl = false;
+		weakSlidingAttack.isAOE = false;
+		weakSlidingAttack.hitBox = hbx.HitBox_Front_Big;
+		weakSlidingAttack.fxName = null;
+		weakSlidingAttack.moveDir = new Vector3 (0, 0, 1);
+		weakSlidingAttack.moveSpeed = 30f;
+		weakSlidingAttack.moveDist = 10f;
 		
 		AttackChain weakSlidingAttackChain = new AttackChain (1);
 		weakSlidingAttackChain.AddAttack (weakSlidingAttack);
 		AddAttackChain (weakSlidingAttackChain);
 
 		// + a/d : Weak AOE attack
-		BasicAttack weakAOEAttack = new BasicAttack(    
-			"Weak AOE Attack",		    	//string attackName
-			new Vector3 (0, 0, 1),			//Vector3 dirModifier
-			1f,		    					//float dmgModifier
-			0.5f,		    				//float forceModifier
-			0.1f,		    				//float preHitDelay
-			0.1f,		    				//float postHitDelay
-			0.41f,		    				//float hitDuration
-			true,		    				//bool hasPlayerControl
-			true,		    				//bool isAOE
-			hbx.HitBox_AOE_Big,				//GameObject hitBox
-			null);							//GameObject visualFX
-		
+		BasicAttack weakAOEAttack = new BasicAttack ();	    
+		weakAOEAttack.attackName = "Weak AOE Attack";
+		weakAOEAttack.dirModifier = new Vector3 (0, 0, 1);
+		weakAOEAttack.dmgModifier = 1f;
+		weakAOEAttack.forceModifier= 0.1f;
+		weakAOEAttack.preHitDelay = 0.1f;
+		weakAOEAttack.postHitDelay = 0.1f;
+		weakAOEAttack.hitDuration = 0.41f;
+		weakAOEAttack.hasPlayerControl = true;
+		weakAOEAttack.isAOE = true;
+		weakAOEAttack.hitBox = hbx.HitBox_AOE_Big;
+		weakAOEAttack.fxName = null;	
+
+
 		AttackChain weakAOEAttackChain = new AttackChain (2);
 		weakAOEAttackChain.AddAttack (weakAOEAttack);
 		AddAttackChain (weakAOEAttackChain);
@@ -86,18 +86,18 @@ public class DefaultCharacter : CharacterData {
 
 
 		// airborne : Weak airborne AOE attack
-		BasicAttack weakAOEAttack_Air = new BasicAttack(	    
-			"Weak Airborne AOE Attack",		//string attackName
-			new Vector3 (0, 0, 1),			//Vector3 dirModifier
-			1f,		    					//float dmgModifier
-			0.5f,		    				//float forceModifier
-			0.2f,		    				//float preHitDelay
-			0.2f,		    				//float postHitDelay
-			0.1f,		    				//float hitDuration
-			true,		    				//bool hasPlayerControl
-			true,		    				//bool isAOE
-			hbx.HitBox_AOE_Air,				//GameObject hitBox
-		    null);							//GameObject visualFX
+		BasicAttack weakAOEAttack_Air = new BasicAttack ();	    
+		weakAOEAttack_Air.attackName = "Weak Airborne AOE Attack";
+		weakAOEAttack_Air.dirModifier = new Vector3 (0, 0, 1);
+		weakAOEAttack_Air.dmgModifier = 1f;
+		weakAOEAttack_Air.forceModifier= 0.1f;
+		weakAOEAttack_Air.preHitDelay = 0.1f;
+		weakAOEAttack_Air.postHitDelay = 0.1f;
+		weakAOEAttack_Air.hitDuration = 0.41f;
+		weakAOEAttack_Air.hasPlayerControl = true;
+		weakAOEAttack_Air.isAOE = true;
+		weakAOEAttack_Air.hitBox = hbx.HitBox_AOE_Big;
+		weakAOEAttack_Air.fxName = null;
 		
 		AttackChain weakAOEAttack_AirChain = new AttackChain (3);
 		weakAOEAttack_AirChain.AddAttack (weakAOEAttack_Air);
@@ -110,19 +110,19 @@ public class DefaultCharacter : CharacterData {
 		 */
 
 		// + nothing/s : Smash
-		BasicAttack fwdSmash = new BasicAttack (	    
-			"Weak Attack",		    		//string attackName
-			new Vector3 (0, 1, 2),			//Vector3 dirModifier
-			1f,		    					//float dmgModifier
-			1f,		    					//float forceModifier
-			0.3f,		    				//float preHitDelay
-			0.3f,		    				//float postHitDelay
-			0.2f,		    				//float hitDuration
-			false,		    				//bool hasPlayerControl
-			false,		    				//bool isAOE
-			hbx.HitBox_Front_Big,			//GameObject hitBox
-			null);							//GameObject visualFX
-		
+		BasicAttack fwdSmash = new BasicAttack ();	    
+		fwdSmash.attackName = "Forward Smash";
+		fwdSmash.dirModifier = new Vector3 (0, 1, 2);
+		fwdSmash.dmgModifier = 1f;
+		fwdSmash.forceModifier= 1f;
+		fwdSmash.preHitDelay = 0.3f;
+		fwdSmash.postHitDelay = 0.3f;
+		fwdSmash.hitDuration = 0.2f;
+		fwdSmash.hasPlayerControl = false;
+		fwdSmash.isAOE = false;
+		fwdSmash.hitBox = hbx.HitBox_Front_Big;
+		fwdSmash.fxName = null;	
+
 		AttackChain fwdSmashChain = new AttackChain (4);
 		fwdSmashChain.AddAttack (fwdSmash);
 		AddAttackChain (fwdSmashChain);
@@ -132,19 +132,19 @@ public class DefaultCharacter : CharacterData {
 		
 
 		// + a/d : Strong AOE attack
-		BasicAttack strongAOEAttack = new BasicAttack(	    
-			"Strong AOE Attack",		//string attackName
-			new Vector3 (0, 0, 1),			//Vector3 dirModifier
-			1f,		    					//float dmgModifier
-			1f,			    				//float forceModifier
-			0.5f,		    				//float preHitDelay
-			0.4f,		    				//float postHitDelay
-			0.3f,		    				//float hitDuration
-			false,		    				//bool hasPlayerControl
-			true,		    				//bool isAOE
-			hbx.HitBox_AOE_Big,				//GameObject hitBox
-		    "AOESmokeFX");					//string fxName (see FXManager)
-		
+		BasicAttack strongAOEAttack = new BasicAttack ();	    
+		strongAOEAttack.attackName = "Strong AOE Attack";
+		strongAOEAttack.dirModifier = new Vector3 (0, 0, 1);
+		strongAOEAttack.dmgModifier = 1f;
+		strongAOEAttack.forceModifier= 1f;
+		strongAOEAttack.preHitDelay = 0.5f;
+		strongAOEAttack.postHitDelay = 0.4f;
+		strongAOEAttack.hitDuration = 0.3f;
+		strongAOEAttack.hasPlayerControl = false;
+		strongAOEAttack.isAOE = true;
+		strongAOEAttack.hitBox = hbx.HitBox_AOE_Big;
+		strongAOEAttack.fxName = "AOESmokeFX";	
+
 		AttackChain strongAOEAttackChain = new AttackChain (5);
 		strongAOEAttackChain.AddAttack (strongAOEAttack);
 		AddAttackChain (strongAOEAttackChain);

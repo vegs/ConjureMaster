@@ -13,6 +13,10 @@ public class AttackData {
 	public bool isAOE = false;
 	public GameObject hitBox = null;
 	public string fxName = null;
+	public float damageBase = 0;
+	public float damageScaling = 0;
+	public float forceBase = 0;
+	public float forceScaling = 0;
 //	cooldown??
 
 //	
