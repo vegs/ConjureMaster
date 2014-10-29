@@ -48,8 +48,8 @@ public class Health : MonoBehaviour {
 
 		}
 	}
-	
-	void Die() {
+	[RPC]
+	public void Die() {
 		if( GetComponent<PhotonView>().instantiationId==0 ) {
 			Destroy(gameObject);
 		}
