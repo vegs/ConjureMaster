@@ -31,21 +31,6 @@ public class Health : MonoBehaviour {
 			if( GUI.Button(new Rect (Screen.width-100, 0, 100, 40), "Suicide!") ) {
 				Die ();
 			}
-
-//			userName = GUI.TextField(new Rect(10, 10, 200, 20), userName, 25);
-//
-//			if( GUI.Button(new Rect (10, 30, 150, 30), "Enter username") ) {
-//
-//				Debug.LogError("CalledButton");
-//
-//				// THIS DOES NOT WORK!!!!!
-//				labelContent = this.GetComponentsInChildren<GUIText>();
-//				labelContent[0].text = "t";
-//				//labelContent.text = userName;
-//				// TIL HIT!
-//			}
-
-
 		}
 	}
 	[RPC]

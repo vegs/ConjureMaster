@@ -14,6 +14,13 @@ public class NetworkManager : MonoBehaviour {
 	bool toggleChat=false;
 	float chatDelay=0f;
 
+	string selectedChar = null;
+	bool inGameMenu=false;
+	bool inGameMenu_main=false;
+	bool inGameMenu_charSelect = false;
+	bool justJoined=false;
+	GameObject myPlayerGO = null;
+
 
 	void Start () {
 		spawnSpots= GameObject.FindObjectsOfType<SpawnSpot>();
@@ -47,7 +54,6 @@ public class NetworkManager : MonoBehaviour {
 			GUILayout.FlexibleSpace();
 			GUILayout.BeginVertical();
 			GUILayout.FlexibleSpace();
-
 			GUILayout.BeginHorizontal();
 			GUILayout.Label("Username: ");
 			PhotonNetwork.player.name = GUILayout.TextField (PhotonNetwork.player.name,GUILayout.MaxWidth(300), GUILayout.MinWidth(300) );
@@ -70,31 +76,96 @@ public class NetworkManager : MonoBehaviour {
 		}
 		//IN GAME
 		if (PhotonNetwork.connected == true && connecting == false) {
-			GUIStyle nameTagStyle = new GUIStyle();
-			nameTagStyle.fontSize = 18;
-			nameTagStyle.normal.textColor = Color.red;
-			nameTagStyle.alignment = TextAnchor.UpperCenter;
 
-			GUIStyle nameTagStyle_outline = new GUIStyle();
-			nameTagStyle_outline.fontSize = 18;
-			nameTagStyle_outline.alignment = TextAnchor.UpperCenter;
-			nameTagStyle_outline.normal.textColor = Color.black;
-			nameTagStyle.normal.textColor = Color.red;
+			if(inGameMenu){
+				GUILayout.BeginArea( new Rect(0, 0, Screen.width, Screen.height) );
+				GUILayout.BeginHorizontal();
+				GUILayout.FlexibleSpace();
+				GUILayout.BeginVertical();
+				GUILayout.FlexibleSpace();
 
-			foreach (PhotonPlayer p in PhotonNetwork.playerList){
-				GameObject pO = PhotonView.Find((p.ID * 1000) + 1).gameObject;
-				Vector3 pos = Camera.main.WorldToScreenPoint(pO.transform.position + Vector3.up*4);
-				Vector3 pos1 = pO.transform.position + Vector3.up*4 - Camera.main.transform.position;
+				//Menu Title
+				GUILayout.BeginHorizontal();
+				if(inGameMenu_main) GUILayout.Label("Menu");
+				if(inGameMenu_charSelect) GUILayout.Label("Choose your character");
+				GUILayout.EndHorizontal();
+				
+				//Menu Buttons
+				if(inGameMenu_main){
+					if (GUILayout.Button("Change Character") ) {
+						inGameMenu_main=false;
+						inGameMenu_charSelect=true;
+					}
+					if (GUILayout.Button("Disconnect") ) {
+						standbyCamera.SetActive(true);
+						mainCamera.SetActive(false);
+						PhotonNetwork.Disconnect ();
+					}
+					if (GUILayout.Button("Close") ) {
+						inGameMenu=false;
+					}
 
-				if (Vector3.Dot(Camera.main.transform.forward, pos1) > 0){
+				}else if(inGameMenu_charSelect){
+					if (GUILayout.Button("Zombie") ) {
+						selectedChar="Player_Zombie01";
+						inGameMenu=false;
+						if(justJoined) SpawnMyPlayer();
+					}
+					if (GUILayout.Button("Samurai") ) {
+						selectedChar="Player_Samurai01";
+						inGameMenu=false;
+						if(justJoined) SpawnMyPlayer();
+					}
+					if (GUILayout.Button("iRobot") ) {
+						selectedChar="Player_iRobot01";
+						inGameMenu=false;
+						if(justJoined) SpawnMyPlayer();
+					}
+					if(justJoined){
 
-					GUI.Label (new Rect(pos.x-74, (Screen.height - pos.y) - pos.z/Camera.main.fieldOfView, 150, 150), p.name, nameTagStyle_outline);
-					GUI.Label (new Rect(pos.x-76, (Screen.height - pos.y) - pos.z/Camera.main.fieldOfView, 150, 150), p.name, nameTagStyle_outline);
-					GUI.Label (new Rect(pos.x-75, (Screen.height - pos.y - 1) - pos.z/Camera.main.fieldOfView, 150, 150), p.name, nameTagStyle_outline);
-					GUI.Label (new Rect(pos.x-75, (Screen.height - pos.y + 1) - pos.z/Camera.main.fieldOfView, 150, 150), p.name, nameTagStyle_outline);
-					GUI.Label (new Rect(pos.x-75, (Screen.height - pos.y) - pos.z/Camera.main.fieldOfView, 150, 150), p.name, nameTagStyle);
+					}else{
+						if (GUILayout.Button("< Back") ) {
+							inGameMenu_main=true;
+							inGameMenu_charSelect=false;
+						}	
+					}
+				}
+				GUILayout.FlexibleSpace();
+				GUILayout.EndVertical();
+				GUILayout.FlexibleSpace();
+				GUILayout.EndHorizontal();
+				GUILayout.EndArea();
+			}
+			else
+			{
+				GUIStyle nameTagStyle = new GUIStyle();
+				nameTagStyle.fontSize = 18;
+				nameTagStyle.normal.textColor = Color.red;
+				nameTagStyle.alignment = TextAnchor.UpperCenter;
+				
+				GUIStyle nameTagStyle_outline = new GUIStyle();
+				nameTagStyle_outline.fontSize = 18;
+				nameTagStyle_outline.alignment = TextAnchor.UpperCenter;
+				nameTagStyle_outline.normal.textColor = Color.black;
+				nameTagStyle.normal.textColor = Color.red;
+				
+				foreach (PhotonPlayer p in PhotonNetwork.playerList){
+					GameObject pO = PhotonView.Find((p.ID * 1000) + 1).gameObject;
+					Vector3 pos = Camera.main.WorldToScreenPoint(pO.transform.position + Vector3.up*4);
+					Vector3 pos1 = pO.transform.position + Vector3.up*4 - Camera.main.transform.position;
+					
+					if (Vector3.Dot(Camera.main.transform.forward, pos1) > 0){
+						
+						GUI.Label (new Rect(pos.x-74, (Screen.height - pos.y) - pos.z/Camera.main.fieldOfView, 150, 150), p.name, nameTagStyle_outline);
+						GUI.Label (new Rect(pos.x-76, (Screen.height - pos.y) - pos.z/Camera.main.fieldOfView, 150, 150), p.name, nameTagStyle_outline);
+						GUI.Label (new Rect(pos.x-75, (Screen.height - pos.y - 1) - pos.z/Camera.main.fieldOfView, 150, 150), p.name, nameTagStyle_outline);
+						GUI.Label (new Rect(pos.x-75, (Screen.height - pos.y + 1) - pos.z/Camera.main.fieldOfView, 150, 150), p.name, nameTagStyle_outline);
+						GUI.Label (new Rect(pos.x-75, (Screen.height - pos.y) - pos.z/Camera.main.fieldOfView, 150, 150), p.name, nameTagStyle);
+					}
 				}
 			}
+
+
 
 
 
@@ -154,14 +225,19 @@ public class NetworkManager : MonoBehaviour {
 	}
 
 	void OnJoinedRoom(){
-		SpawnMyPlayer ();
+		inGameMenu = true;
+		inGameMenu_main = false;
+		inGameMenu_charSelect = true;
+		connecting = false;
+		justJoined = true;
 	}
 
 	void SpawnMyPlayer(){
+		justJoined=false;
 		AddChatMessage ("Spawning player: " + PhotonNetwork.player.name);
 		connecting = false;
 		SpawnSpot mySpawnSpot = spawnSpots[Random.Range(0,spawnSpots.Length)];
-		GameObject myPlayerGO = (GameObject) PhotonNetwork.Instantiate ("Player", mySpawnSpot.transform.position, mySpawnSpot.transform.rotation, 0);
+		myPlayerGO = (GameObject) PhotonNetwork.Instantiate (selectedChar, mySpawnSpot.transform.position, mySpawnSpot.transform.rotation, 0);
 		standbyCamera.SetActive(false);
 
 		//myPlayerGO.GetComponent<OLD_PlayerMovement> ().enabled = true;
@@ -189,19 +265,17 @@ public class NetworkManager : MonoBehaviour {
 		}
 
 		//MENU
-		if (PhotonNetwork.connected == false && connecting == false) {
+		if (PhotonNetwork.connected == false && inGameMenu == false) {
 			Screen.showCursor = true;
 			Screen.lockCursor = false;
 		}
 		//GAME
 		if (PhotonNetwork.connected == true && connecting == false) {
-			Screen.showCursor = false;
-			Screen.lockCursor = true;	
 
 			if (Input.GetButtonDown ("Menu")) {
-				standbyCamera.SetActive(true);
-				mainCamera.SetActive(false);
-				PhotonNetwork.Disconnect ();		
+				inGameMenu=true;
+				inGameMenu_main=true;
+				inGameMenu_charSelect=false;
 			}
 		}
 	}
