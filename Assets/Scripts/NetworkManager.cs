@@ -13,6 +13,7 @@ public class NetworkManager : MonoBehaviour {
 	string currentMsg="";
 	bool toggleChat=false;
 	float chatDelay=0f;
+	int pvID=0;
 
 	string selectedChar = null;
 	bool inGameMenu=false;
@@ -136,7 +137,7 @@ public class NetworkManager : MonoBehaviour {
 				GUILayout.EndHorizontal();
 				GUILayout.EndArea();
 			}
-			else
+			else if (myPlayerGO != null)
 			{
 				GUIStyle nameTagStyle = new GUIStyle();
 				nameTagStyle.fontSize = 18;
@@ -148,19 +149,22 @@ public class NetworkManager : MonoBehaviour {
 				nameTagStyle_outline.alignment = TextAnchor.UpperCenter;
 				nameTagStyle_outline.normal.textColor = Color.black;
 				nameTagStyle.normal.textColor = Color.red;
-				
-				foreach (PhotonPlayer p in PhotonNetwork.playerList){
-					GameObject pO = PhotonView.Find((p.ID * 1000) + 1).gameObject;
+
+				GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
+				foreach (GameObject pO in players){
+
 					Vector3 pos = Camera.main.WorldToScreenPoint(pO.transform.position + Vector3.up*4);
 					Vector3 pos1 = pO.transform.position + Vector3.up*4 - Camera.main.transform.position;
-					
+
+					string name=PhotonPlayer.Find(pO.GetComponent<PhotonView>().ownerId).name;
+												
 					if (Vector3.Dot(Camera.main.transform.forward, pos1) > 0){
 						
-						GUI.Label (new Rect(pos.x-74, (Screen.height - pos.y) - pos.z/Camera.main.fieldOfView, 150, 150), p.name, nameTagStyle_outline);
-						GUI.Label (new Rect(pos.x-76, (Screen.height - pos.y) - pos.z/Camera.main.fieldOfView, 150, 150), p.name, nameTagStyle_outline);
-						GUI.Label (new Rect(pos.x-75, (Screen.height - pos.y - 1) - pos.z/Camera.main.fieldOfView, 150, 150), p.name, nameTagStyle_outline);
-						GUI.Label (new Rect(pos.x-75, (Screen.height - pos.y + 1) - pos.z/Camera.main.fieldOfView, 150, 150), p.name, nameTagStyle_outline);
-						GUI.Label (new Rect(pos.x-75, (Screen.height - pos.y) - pos.z/Camera.main.fieldOfView, 150, 150), p.name, nameTagStyle);
+						GUI.Label (new Rect(pos.x-74, (Screen.height - pos.y) - pos.z/Camera.main.fieldOfView, 150, 150), name, nameTagStyle_outline);
+						GUI.Label (new Rect(pos.x-76, (Screen.height - pos.y) - pos.z/Camera.main.fieldOfView, 150, 150), name, nameTagStyle_outline);
+						GUI.Label (new Rect(pos.x-75, (Screen.height - pos.y - 1) - pos.z/Camera.main.fieldOfView, 150, 150), name, nameTagStyle_outline);
+						GUI.Label (new Rect(pos.x-75, (Screen.height - pos.y + 1) - pos.z/Camera.main.fieldOfView, 150, 150), name, nameTagStyle_outline);
+						GUI.Label (new Rect(pos.x-75, (Screen.height - pos.y) - pos.z/Camera.main.fieldOfView, 150, 150), name, nameTagStyle);
 					}
 				}
 			}
@@ -236,16 +240,16 @@ public class NetworkManager : MonoBehaviour {
 		justJoined=false;
 		AddChatMessage ("Spawning player: " + PhotonNetwork.player.name);
 		connecting = false;
+
 		SpawnSpot mySpawnSpot = spawnSpots[Random.Range(0,spawnSpots.Length)];
 		myPlayerGO = (GameObject) PhotonNetwork.Instantiate (selectedChar, mySpawnSpot.transform.position, mySpawnSpot.transform.rotation, 0);
-		standbyCamera.SetActive(false);
 
-		//myPlayerGO.GetComponent<OLD_PlayerMovement> ().enabled = true;
+		standbyCamera.SetActive(false);
+		
 		myPlayerGO.GetComponent<PlayerMovement> ().enabled = true;
 		myPlayerGO.GetComponent<Jump> ().enabled = true;
 		myPlayerGO.GetComponent<MouseLook> ().enabled = true;
 		myPlayerGO.GetComponent<PlayerCombat> ().enabled = true;
-		//myPlayerGO.GetComponent<PlayerState> ().enabled = true;
 
 
 		mainCamera.GetComponent<LookAtCamera> ().body = (GameObject)myPlayerGO;
@@ -253,6 +257,7 @@ public class NetworkManager : MonoBehaviour {
 		mainCamera.SetActive(true);
 
 	}
+
 
 	void Update() {
 		if(respawnTimer > 0) {
