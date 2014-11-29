@@ -135,6 +135,8 @@ public class PlayerState : MonoBehaviour {
 			AnimatorStateInfo flinchAnim =  anim.GetCurrentAnimatorStateInfo(0);
 			anim.Play(flinchAnim.nameHash,0, 0); 
 			knockoutTime = flinch_knockoutTime; //flinch knockout time
+
+			//display flinch hit-stars
 			fx.GetComponent<PhotonView>().RPC ("PlayFX", PhotonTargets.All, "FlinchHit" ,this.transform.position, attackerPos);
 
 		} else {
@@ -146,7 +148,13 @@ public class PlayerState : MonoBehaviour {
 			anim.SetFloat("KnckBckTheta", kncBckTheta);
 
 			knockoutTime = 1f; //should depend on the attack force ideally
+
+			//display hit-star
 			fx.GetComponent<PhotonView>().RPC ("PlayFX", PhotonTargets.All, "NormalHit" ,this.transform.position, attackerPos);
+
+			//display trailing smoke
+			fx.GetComponent<PhotonView>().RPC ("PlayFX", PhotonTargets.All, "TrailingSmoke" ,this.transform.position, this.transform.position);
+
 		}
 
 		Debug.Log ("Added: " + hitVelocity);
@@ -169,12 +177,14 @@ public class PlayerState : MonoBehaviour {
 
 		if(anim.GetBool ("IsHit") && !anim.GetBool("Flinch")){
 
+			//display hit-stars when bouncing off terrain
 			float normalMag = Vector3.Dot(_velocity, normal);
 			if(normalMag < 8 && normalMag > 2) {
 				fx.GetComponent<PhotonView>().RPC ("PlayFX", PhotonTargets.All, "FlinchHit" ,this.transform.position, this.transform.position);
 			} else if (normalMag > 8) {
 				fx.GetComponent<PhotonView>().RPC ("PlayFX", PhotonTargets.All, "NormalHit" ,this.transform.position, this.transform.position);
 			}
+
 
 		}
 	}

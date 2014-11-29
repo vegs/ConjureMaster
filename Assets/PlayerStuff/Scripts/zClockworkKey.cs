@@ -5,6 +5,10 @@ public class zClockworkKey : MonoBehaviour {
 
 	Animator anim;
 
+	int fastSpeed = 500;
+	int medSpeed = 300;
+	int slowSpeed = 100;
+
 
 	// The process can probably be more efficient using hashes instead!
 	// So look at this at later stage - when optimising
@@ -46,15 +50,15 @@ public class zClockworkKey : MonoBehaviour {
 		    stateInfo.IsName("WeakSlidingAttack")||
 		    stateInfo.IsName("WeakAOE")){
 
-			transform.Rotate (0,0,Time.deltaTime*300);
+			transform.Rotate (0,0,Time.deltaTime*medSpeed);
 		}
 		else if (stateInfo.IsName("SmashFwd")||		    
 		         stateInfo.IsName("StrongAOE")){
 
-			transform.Rotate (0,0,Time.deltaTime*500);
+			transform.Rotate (0,0,Time.deltaTime*fastSpeed);
 		}
 		else {
-		transform.Rotate (0,0,Time.deltaTime*100);
+		transform.Rotate (0,0,Time.deltaTime*slowSpeed);
 		}
 
 
