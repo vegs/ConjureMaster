@@ -76,7 +76,7 @@ public class DefaultCharacter : CharacterData {
 		weakAOEAttack.hasPlayerControl = true;
 		weakAOEAttack.isAOE = true;
 		weakAOEAttack.hitBox = hbx.HitBox_AOE_Big;
-		weakAOEAttack.fxName = null;	
+		weakAOEAttack.fxName = "AOESwishFX";	
 
 
 		AttackChain weakAOEAttackChain = new AttackChain (2);

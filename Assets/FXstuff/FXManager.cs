@@ -8,6 +8,7 @@ public class FXManager : MonoBehaviour {
 	public GameObject FlinchStarFX_Prefab;
 	public GameObject NormalStarFX_Prefab;
 	public GameObject TrailingSmokeFX_Prefab;
+	public GameObject SpinningSwishFX_Prefab;
 	
 
 	[RPC]
@@ -26,7 +27,12 @@ public class FXManager : MonoBehaviour {
 			case "TrailingSmoke":
 				Debug.Log ("TrailingSmoke activated!");
 				TrailingSmoke(origin);					//duration has to be set in later versions!
+				break;
+			case "AOESwishFX":
+				SpinningSwish(origin);
 			break;
+
+
 		default:
 				Debug.Log ("No FX name match");
 			break;
@@ -38,12 +44,43 @@ public class FXManager : MonoBehaviour {
 	}
 
 
+	public void SpinningSwish (Vector3 pos){
+		
+		float radius = 10f;
+		Debug.Log("Instantiating Spinning Swish!");
+		GameObject SpinningSwishOb = (GameObject)Instantiate (SpinningSwishFX_Prefab, pos, Quaternion.identity);
+		
+		//////Find Gameobject based on position
+		// get all colliders that intersect pos:
+		Collider[] cols = Physics.OverlapSphere(pos, radius);
+		
+		// find the nearest one:
+		float dist = Mathf.Infinity;
+		
+		foreach (Collider col in cols){
+			// find the distance to pos:
+			float d = Vector3.Distance(pos, col.transform.position);
+			
+			if (d < dist && col.tag == "Player"){ // if closer...
+				dist = d; // save its distance... 
+				
+				SpinningSwishOb.transform.parent = col.gameObject.transform; // and its gameObject
+				
+			}
+		}
+		SpinningSwishOb.transform.localPosition = new Vector3 (0,2,0);
+		/////////
+	}	
+
+
+
+
 
 
 	public void TrailingSmoke (Vector3 pos){
 
 		float radius = 10f;
-		Debug.Log("Instantiating Trailing smoke!");
+		//Debug.Log("Instantiating Trailing smoke!");
 		GameObject TrailingSmokeOb = (GameObject)Instantiate (TrailingSmokeFX_Prefab, pos, Quaternion.identity);
 
 	//////Find Gameobject based on position
@@ -61,7 +98,6 @@ public class FXManager : MonoBehaviour {
 				dist = d; // save its distance... 
 				
 				TrailingSmokeOb.transform.parent = col.gameObject.transform; // and its gameObject
-				Debug.Log("We found something!");
 				
 			}
 		}
