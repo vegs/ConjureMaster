@@ -14,6 +14,9 @@ public class Jump : MonoBehaviour {
 	public float jumpSpeed = 10.0f;
 	public float jumpDelay = 0.5f;
 
+	Collider someCollider = null;
+		
+
 	// Use this for initialization
 	void Start () {
 		anim=GetComponent<Animator>();
@@ -25,15 +28,18 @@ public class Jump : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 
-		Ray fallCheckRay = new Ray (gameObject.transform.position, -transform.up);
+		Ray ray = new Ray(gameObject.transform.position+new Vector3(0,1,0), Vector3.down);
+		//Ray fallCheckRay = new Ray (gameObject.transform.position, -transform.up);
 //		if (Physics.Raycast (fallCheckRay, 1.5f)) {
 //			anim.SetBool ("IsSlope", true);
 //		} else {
 //			anim.SetBool ("IsSlope", false);
 //		} 
-		Debug.DrawRay (transform.position, -transform.up*1, Color.magenta);
+		RaycastHit hit;
+		Debug.DrawRay(gameObject.transform.position+new Vector3(0,1,0), Vector3.down*2.5f, Color.magenta);
 		//Physics.Raycast (transform.position, -transform.up, 1
-		if ( cc.isGrounded || Physics.Raycast (fallCheckRay, 1.5f)) {
+		Debug.Log (Physics.Raycast(ray, out hit, 2.5f) && hit.collider.tag!="Player");
+		if ( cc.isGrounded || Physics.Raycast(ray, out hit, 2.5f) && hit.collider.tag!="Player") {
 			airTime=0;
 			canJumpAir=true;
 			falling=true;
@@ -44,7 +50,8 @@ public class Jump : MonoBehaviour {
 				falling=false;
 			}
 		}
-		else{
+
+		else {
 			airTime += Time.deltaTime;
 			anim.SetBool ("IsSlope", false);
 			
