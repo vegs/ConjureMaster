@@ -6,6 +6,7 @@ public class Jump : MonoBehaviour {
 	PlayerState ps;
 	CharacterController cc;
 	PlayerMovement pm;
+	WallCheck wc;
 
 	bool canJumpAir = true;
 	bool falling = true; //falling off a ldge without jumping 
@@ -23,6 +24,7 @@ public class Jump : MonoBehaviour {
 		ps=GetComponent<PlayerState>();
 		cc=GetComponent<CharacterController>();
 		pm = GetComponent<PlayerMovement>();
+		wc = GetComponentInChildren<WallCheck> ();
 	}
 	
 	// Update is called once per frame
@@ -38,8 +40,8 @@ public class Jump : MonoBehaviour {
 		RaycastHit hit;
 		Debug.DrawRay(gameObject.transform.position+new Vector3(0,1,0), Vector3.down*2.5f, Color.magenta);
 		//Physics.Raycast (transform.position, -transform.up, 1
-		Debug.Log (Physics.Raycast(ray, out hit, 2.5f) && hit.collider.tag!="Player");
-		if ( cc.isGrounded || Physics.Raycast(ray, out hit, 2.5f) && hit.collider.tag!="Player") {
+//		Debug.Log (Physics.Raycast(ray, out hit, 2.5f) && hit.collider.tag!="Player");
+		if ( cc.isGrounded && wc.wallHug == false || Physics.Raycast(ray, out hit, 2.5f) && hit.collider.tag!="Player") {
 			airTime=0;
 			canJumpAir=true;
 			falling=true;

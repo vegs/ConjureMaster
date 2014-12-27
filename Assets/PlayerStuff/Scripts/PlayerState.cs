@@ -9,6 +9,7 @@ public class PlayerState : MonoBehaviour {
 	PlayerCombat pc;
 	MouseLook ml;
 	GamePhysics phys = new GamePhysics();
+	enum dir {none, forward, backwards, left, right};
 
 	public float flinchThreshold = 5f;
 	public float flinch_knockoutTime = 0.5f;
@@ -104,6 +105,7 @@ public class PlayerState : MonoBehaviour {
 		}
 		dist = _velocity * Time.deltaTime;
 
+//		Debug.Log (dist*100);
 		cc.Move (dist);
 
 
@@ -166,6 +168,13 @@ public class PlayerState : MonoBehaviour {
 		if(playerControl){
 			addedVelocity.y = jmpSpeed;
 		}
+	}
+
+	public void PushBack(Vector3 normal){
+
+		addedVelocity.x = normal.x *5f;
+		addedVelocity.z = normal.z *5f;
+
 	}
 
 	public void Reflect(Vector3 normal, float velocityMultiplyer){
