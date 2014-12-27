@@ -117,6 +117,11 @@ public class NetworkManager : MonoBehaviour {
 						inGameMenu=false;
 						if(justJoined) SpawnMyPlayer();
 					}
+					if (GUILayout.Button("Fairy") ) {
+						selectedChar="Player_Elf01";
+						inGameMenu=false;
+						if(justJoined) SpawnMyPlayer();
+					}
 					if (GUILayout.Button("iRobot") ) {
 						selectedChar="Player_iRobot01";
 						inGameMenu=false;
