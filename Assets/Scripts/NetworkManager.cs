@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections.Generic;
 
 public class NetworkManager : MonoBehaviour {
@@ -156,6 +157,8 @@ public class NetworkManager : MonoBehaviour {
 				nameTagStyle.normal.textColor = Color.red;
 
 				GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
+				GameObject Hud = GameObject.FindGameObjectWithTag("HUD");
+				int c=0;
 				foreach (GameObject pO in players){
 
 					Vector3 pos = Camera.main.WorldToScreenPoint(pO.transform.position + Vector3.up*4);
@@ -170,6 +173,32 @@ public class NetworkManager : MonoBehaviour {
 						GUI.Label (new Rect(pos.x-75, (Screen.height - pos.y - 1) - pos.z/Camera.main.fieldOfView, 150, 150), name, nameTagStyle_outline);
 						GUI.Label (new Rect(pos.x-75, (Screen.height - pos.y + 1) - pos.z/Camera.main.fieldOfView, 150, 150), name, nameTagStyle_outline);
 						GUI.Label (new Rect(pos.x-75, (Screen.height - pos.y) - pos.z/Camera.main.fieldOfView, 150, 150), name, nameTagStyle);
+					}
+
+
+					c++;
+					foreach (Transform child in Hud.transform)
+					{
+						if (child.name == "p"+c.ToString()){
+							child.gameObject.SetActive(true);
+							child.GetComponentInChildren<Text>().text=PhotonPlayer.Find(pO.GetComponent<PhotonView>().ownerId).name + ": \n"+ pO.GetComponent<Health>().damagePercent;
+							//GameObject panel = child.FindChild("Panel").gameObject;
+							Color32 fr = new Color32(76,76,173,96);
+							Color32 en = new Color32(179,0,0,125);
+							if(pO.GetPhotonView().isMine){
+								child.GetComponent<Image>().color=fr;
+								//panel.GetComponent<Image>().color.Equals(new Color(76,76,173,96));
+							}else{
+								child.GetComponent<Image>().color=en;
+							}
+
+							//child.gameObject.SetActive(true);
+						}
+						if(child.name.CompareTo("p"+c.ToString())>0){
+							child.gameObject.SetActive(false);
+							//child.GetComponent<Text>().text= "";
+							//child.FindChild("Panel").gameObject.SetActive(false);
+						}
 					}
 				}
 			}
