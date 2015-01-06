@@ -26,13 +26,13 @@ public class Health : MonoBehaviour {
 //		}
 	}
 	
-	void OnGUI() {
-		if( GetComponent<PhotonView>().isMine && gameObject.tag == "Player" ) {
-			if( GUI.Button(new Rect (Screen.width-100, 0, 100, 40), "Suicide!") ) {
-				Die ();
-			}
-		}
-	}
+//	void OnGUI() {
+//		if( GetComponent<PhotonView>().isMine && gameObject.tag == "Player" ) {
+//			if( GUI.Button(new Rect (Screen.width-100, 0, 100, 40), "Suicide!") ) {
+//				Die ();
+//			}
+//		}
+//	}
 	[RPC]
 	public void Die() {
 		if( GetComponent<PhotonView>().instantiationId==0 ) {
@@ -41,7 +41,7 @@ public class Health : MonoBehaviour {
 		else {
 			if( GetComponent<PhotonView>().isMine ) {
 				if( gameObject.tag == "Player" ) {		// This is my actual PLAYER object, then initiate the respawn process
-					NetworkManager nm = GameObject.FindObjectOfType<NetworkManager>();
+					NetworkManager_GAME nm = GameObject.FindObjectOfType<NetworkManager_GAME>();
 					
 					nm.standbyCamera.SetActive(true);
 					nm.mainCamera.SetActive(false);

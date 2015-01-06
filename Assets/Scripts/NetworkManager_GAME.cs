@@ -2,7 +2,7 @@
 using UnityEngine.UI;
 using System.Collections.Generic;
 
-public class NetworkManager : MonoBehaviour {
+public class NetworkManager_GAME : MonoBehaviour {
 	public GameObject standbyCamera;
 	SpawnSpot[] spawnSpots;
 	public GameObject mainCamera;

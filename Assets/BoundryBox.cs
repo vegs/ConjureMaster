@@ -11,7 +11,7 @@ public class BoundryBox : MonoBehaviour {
 	void OnTriggerExit(Collider collision) {
 		pv = collision.GetComponent<PhotonView>();
 
-		if ((collision.gameObject.tag == "Player" || collision.gameObject.tag == "Bot") && pv != null) {
+		if ((collision.gameObject.tag == "Player" && pv.isMine || collision.gameObject.tag == "Bot") && pv != null) {
 			pv.RPC ("Die", PhotonTargets.AllBuffered);
 		}
 	}
