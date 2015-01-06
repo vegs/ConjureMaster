@@ -4,6 +4,7 @@ using System.Collections;
 public class NetworkCharacter : Photon.MonoBehaviour {
 	Vector3 realPosition = Vector3.zero;
 	Quaternion realRotation = Quaternion.identity;
+	public float SmoothingDelay = 5;
 
 	Animator anim;
 
@@ -27,8 +28,8 @@ public class NetworkCharacter : Photon.MonoBehaviour {
 		if (photonView.isMine) {
 				
 		} else {
-			transform.position = Vector3.Lerp(transform.position, realPosition, 0.1f);
-			transform.rotation = Quaternion.Lerp(transform.rotation, realRotation, 0.1f);
+			transform.position = Vector3.Lerp(transform.position, realPosition, Time.deltaTime * this.SmoothingDelay);
+			transform.rotation = Quaternion.Lerp(transform.rotation, realRotation, Time.deltaTime * this.SmoothingDelay);
 		}
 	}
 
