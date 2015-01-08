@@ -2,8 +2,9 @@
 using System.Collections;
 
 public class DefaultCharacter : CharacterData {
-
 	HitBoxes hbx = GameObject.FindObjectOfType<HitBoxes>();
+	
+
 
 	public DefaultCharacter(){
 

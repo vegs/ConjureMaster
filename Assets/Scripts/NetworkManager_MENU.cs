@@ -3,31 +3,46 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System.Collections.Generic;
 using Hashtable = ExitGames.Client.Photon.Hashtable;
+using EventSystem = UnityEngine.EventSystems.EventSystem;
 
 public class NetworkManager_MENU : MonoBehaviour {
 	
 	public GameObject Canvas_Main;
 	public GameObject Canvas_Rooms;
-	public GameObject Canvas_CharSelect;
 	public GameObject Canvas_NewRoom;
 	public GameObject RoomEntry;
 	RoomInfo[] roomList;
+	bool loaded=false;
+	string selectedMap="";
 	
 	
 	
 	public bool offlineMode = false;
 	bool connecting = false;
 	//GameObject menu = GameObject.Find("Name");
-	
-	
-	void Start () {
-		Canvas_Main.SetActive (true);
+	void Awake (){
+		Debug.Log ("Awake");
+		GameObject.Find("NameField").GetComponent<InputField>().text=PhotonNetwork.player.name;
+		Canvas_Main.SetActive (false);
 		Canvas_Rooms.SetActive (false);
-		Canvas_CharSelect.SetActive (false);
 		Canvas_NewRoom.SetActive (false);
+	}
+
+	void OnLevelWasLoaded () {
+		Debug.Log ("OnLevelWasLoaded");
+		loaded = true;
+		//PhotonNetwork.LeaveRoom ();
+		Canvas_Rooms.SetActive (true);
+		Connect ();
+
+	}
+
+	void Start () {
+		if (!loaded) 
+			MainScreen ();
 		
 		PhotonNetwork.player.name = PlayerPrefs.GetString ("Username", "King Joffrey");
-		GameObject.Find("NameField").GetComponent<InputField>().text=PhotonNetwork.player.name;
+		//GameObject.Find("NameField").GetComponent<InputField>().text=PhotonNetwork.player.name;
 	}
 	void OnDestroy(){
 		PlayerPrefs.SetString ("Username", PhotonNetwork.player.name);
@@ -35,6 +50,7 @@ public class NetworkManager_MENU : MonoBehaviour {
 	
 	public void OnNameChange(){
 		PhotonNetwork.player.name=GameObject.Find("NameField").GetComponent<InputField>().text;
+		//PlayerPrefs.SetString ("Username", PhotonNetwork.player.name);
 	}
 	public void Connect(){
 		PhotonNetwork.ConnectUsingSettings ( "ConjureMaster v002" );
@@ -42,8 +58,7 @@ public class NetworkManager_MENU : MonoBehaviour {
 	}
 	
 	void OnJoinedLobby(){
-		Canvas_Main.SetActive (false);
-		Canvas_Rooms.SetActive (true);
+		RoomsScreen ();
 		Debug.Log ("OnJoinedLobby");
 		roomList = PhotonNetwork.GetRoomList ();
 		
@@ -70,24 +85,27 @@ public class NetworkManager_MENU : MonoBehaviour {
 	//			GameObject.Find ("roomtext").GetComponent<Text>().text="\nNew Room: "+room.name+"   ;   "+room.playerCount+"/"+room.maxPlayers;
 	//		}
 	//	}
-	
+
+
 	public void CreateNewRoom(){
-		RoomOptions opt=new RoomOptions();
 		
 		Debug.Log (GameObject.Find ("RoomNameField").GetComponent<InputField>().text);
 		if (PhotonNetwork.connectedAndReady){
-			//PhotonNetwork.CreateRoom (GameObject.Find ("RoomNameField").GetComponent<InputField>().text, true, true, 4);
-			//string[] prop=new string["Map", "stock"];
+			if (GameObject.Find ("RoomNameField").GetComponent<InputField>().text!="" && selectedMap!=""){
 
-			Hashtable ht=new Hashtable(){{"Map","Skyscraper"},{"Lives", 5}, {"Owner",PhotonNetwork.player.name}};
-//			ht.Add("Map", "skyscraper");
-//			ht.Add("Lives", 5);
-			string[] roomPropsInLobby = { "Map", "Lives" };
-			
-			PhotonNetwork.CreateRoom(GameObject.Find ("RoomNameField").GetComponent<InputField>().text, true, true, 4, ht, roomPropsInLobby);
+				Hashtable ht=new Hashtable(){{"Map", selectedMap},{"Lives", 5}, {"Owner", PlayerPrefs.GetString("Username")}};
+
+				string[] roomPropsInLobby = { "Map", "Lives" , "Owner"};
+				
+				PhotonNetwork.CreateRoom(GameObject.Find ("RoomNameField").GetComponent<InputField>().text, true, true, 4, ht, roomPropsInLobby);
+			}
 		}
 	}
+
+
 	
+
+
 	public void LeaveRoom(){
 		PhotonNetwork.LeaveRoom ();
 	}
@@ -100,35 +118,39 @@ public class NetworkManager_MENU : MonoBehaviour {
 		Debug.Log (PhotonNetwork.insideLobby);
 		if(PhotonNetwork.insideLobby && roomList != PhotonNetwork.GetRoomList ()){
 			roomList=PhotonNetwork.GetRoomList ();
-			//GameObject.Find ("roomtext").GetComponent<Text>().text="";
-
-			float ypos=0;
+			List<GameObject> children = new List<GameObject>();
+			foreach (Transform child in GameObject.Find("RoomListAreaPanel").transform) children.Add(child.gameObject);
+			children.ForEach(child => Destroy(child));
+			Vector2 sd=GameObject.Find("RoomListAreaPanel").GetComponent<RectTransform>().sizeDelta;
+			sd.Set(sd.x, 0f);
 			foreach (RoomInfo room in roomList) {
-
-
-				//RoomEntry.GetComponent<RectTransform>().SetParent(GameObject.Find("RoomListArea").GetComponent<RectTransform>());
-				GameObject NewRoomEntry=(GameObject)Canvas.Instantiate(RoomEntry);
-				NewRoomEntry.transform.SetParent(GameObject.Find("RoomListArea").transform);
-				//NewRoomEntry.GetComponent<RectTransform>().position.Set(NewRoomEntry.transform.parent.GetComponent<RectTransform>().position.x,NewRoomEntry.transform.parent.GetComponent<RectTransform>().position.y,NewRoomEntry.transform.parent.GetComponent<RectTransform>().position.z);
-				RectTransform rect = NewRoomEntry.GetComponent<RectTransform>();
-				//rect.anchoredPosition.Set(0,0);
-				//rect.localPosition.Set (0,0,0);
-				//Event e=new Event({LeaveRoom ()});
-				//EventSystem e = new EventSystem();
-
-				rect.FindChild("Button").GetComponent<Button>().onClick.AddListener (delegate{JoinARoom (room);});
-				rect.FindChild("Text").GetComponent<Text>().text=room.name+"   |   "+room.playerCount+"/"+room.maxPlayers+"  |  "+ room.customProperties["Map"]+ "  |  " + room.customProperties["Owner"];
-				//rect.sizeDelta=new Vector2(200f,30f);
-				//Debug.Log ("apos: "+ rect.anchoredPosition+"   pos: "+rect.position+"   lpos: "+rect.localPosition+"   pivot: "+rect.pivot);
-				ypos+=30f;
-				Debug.Log(room.name);
-//				GameObject.Find ("roomtext").GetComponent<Text>().text+="\nNew Room: "+room.name+"   ;   "+room.playerCount+"/"+room.maxPlayers+"   ;  "+ room.customProperties["Map"];
+				sd.Set (sd.x, sd.y+30f);
+				for (int i = 0; i < 40; i++) {
+					GameObject NewRoomEntry=(GameObject)Canvas.Instantiate(RoomEntry);
+					NewRoomEntry.transform.SetParent(GameObject.Find("RoomListAreaPanel").transform);
+					RectTransform rect = NewRoomEntry.GetComponent<RectTransform>();
+					rect.localScale=new Vector3(1f,1f,1f);
+					rect.FindChild("Button").GetComponent<Button>().onClick.AddListener (delegate{JoinARoom (room);});
+					rect.FindChild("Text").GetComponent<Text>().text="  "+room.name+"   |   "+room.playerCount+"/"+room.maxPlayers+"  |  "+ room.customProperties["Map"]+ "  |  " + room.customProperties["Lives"] + "  |  " + room.customProperties["Owner"];
+					GameObject.Find("RoomListAreaPanel").GetComponent<RectTransform>().sizeDelta.Set(GameObject.Find("RoomListAreaPanel").GetComponent<RectTransform>().sizeDelta.x, GameObject.Find("RoomListAreaPanel").GetComponent<RectTransform>().sizeDelta.y+30f);;
+					Debug.Log(room.name);
+				}
 			}
 		}
 	}
 
 	void JoinARoom(RoomInfo room){
-		PhotonNetwork.JoinRoom(room.name);
+		//PhotonNetwork.JoinRoom(room.name);
+
+		Canvas_Rooms.SetActive (false);
+		if (room.customProperties ["Map"].Equals("Skyscraper")) {
+			Application.LoadLevel("Skyscraper_v01");		
+		}else if(room.customProperties ["Map"].Equals("Graveyard")) {
+			Application.LoadLevel("Graveyard_v02");		
+		}
+		Hashtable ht=new Hashtable(){{"RoomName", room.name}};
+		PhotonNetwork.player.SetCustomProperties(ht);
+		//PhotonNetwork.JoinRoom(room.name);
 	}
 
 	void OnJoinedRoom(){
@@ -137,6 +159,32 @@ public class NetworkManager_MENU : MonoBehaviour {
 		if (PhotonNetwork.room.customProperties ["Map"].Equals("Skyscraper")) {
 			Debug.Log (PhotonNetwork.room.customProperties ["Map"]);
 			Application.LoadLevel("Skyscraper_v01");		
+		}else if(PhotonNetwork.room.customProperties ["Map"].Equals("Graveyard")) {
+			Debug.Log (PhotonNetwork.room.customProperties ["Map"]);
+			Application.LoadLevel("Graveyard_v02");		
 		}
+	}
+
+	public void SelectMap(string map){
+		selectedMap = map;
+	}
+
+	public void CreateRoomScreen(){	
+		Canvas_Main.SetActive (false);
+		Canvas_Rooms.SetActive (false);
+		Canvas_NewRoom.SetActive (true);
+	}
+
+	public void MainScreen(){	
+		PhotonNetwork.Disconnect ();
+		Canvas_Main.SetActive (true);
+		Canvas_Rooms.SetActive (false);
+		Canvas_NewRoom.SetActive (false);
+	}
+
+	public void RoomsScreen(){	
+		Canvas_Main.SetActive (false);
+		Canvas_Rooms.SetActive (true);
+		Canvas_NewRoom.SetActive (false);
 	}
 }

@@ -24,13 +24,25 @@ public class NetworkManager_GAME : MonoBehaviour {
 	GameObject myPlayerGO = null;
 
 
-	void Start () {
-		spawnSpots= GameObject.FindObjectsOfType<SpawnSpot>();
-		PhotonNetwork.player.name = PlayerPrefs.GetString ("Username", "King Joffrey");
-		chatMessages = new List<string> ();
+	void OnLevelWasLoaded () {
+		Debug.Log ("OnLevelWasLoaded");
 	}
-	void OnDestroy(){
-		PlayerPrefs.SetString ("Username", PhotonNetwork.player.name);
+	void Awake(){
+		Debug.Log ("Awake");
+
+	}
+	void Start(){
+		Debug.Log ("Start");
+		spawnSpots= GameObject.FindObjectsOfType<SpawnSpot>();
+		chatMessages = new List<string> ();
+		if (PhotonNetwork.inRoom) {
+			inGameMenu = true;
+			inGameMenu_main = false;
+			inGameMenu_charSelect = true;
+			connecting = false;
+			justJoined = true;		
+		}
+		PhotonNetwork.JoinRoom (PhotonNetwork.player.customProperties["RoomName"].ToString());
 	}
 
 	public void AddChatMessage(string m){
@@ -102,6 +114,7 @@ public class NetworkManager_GAME : MonoBehaviour {
 						standbyCamera.SetActive(true);
 						mainCamera.SetActive(false);
 						PhotonNetwork.Disconnect ();
+						Application.LoadLevel("Startup");
 					}
 					if (GUILayout.Button("Close") ) {
 						inGameMenu=false;
