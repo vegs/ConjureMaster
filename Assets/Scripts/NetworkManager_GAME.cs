@@ -298,7 +298,7 @@ public class NetworkManager_GAME : MonoBehaviour {
 		myPlayerGO.GetComponent<Jump> ().enabled = true;
 		myPlayerGO.GetComponent<MouseLook> ().enabled = true;
 		myPlayerGO.GetComponent<PlayerCombat> ().enabled = true;
-		myPlayerGO.GetComponent<PlayerState> ().enabled = true;
+		//myPlayerGO.GetComponent<PlayerState> ().enabled = true;
 
 
 		mainCamera.GetComponent<LookAtCamera> ().body = (GameObject)myPlayerGO;
