@@ -48,7 +48,7 @@ public class PlayerState : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-	if(pv.isMine){
+	
 		if(ml != null) ml.playerControl = playerControl;
 
 		knockoutTime -= Time.deltaTime;
@@ -68,13 +68,13 @@ public class PlayerState : MonoBehaviour {
 		if (pc.isUsingAttack && pc.currentAttack is MovementAttack) {
 			addedVelocity=Vector3.zero;
 		}
-	}
+	
 	}
 
 	// FixedUpdate is called once per physics loop
 	// Do all movement and physics here
 	void FixedUpdate(){
-	if(pv.isMine){
+	
 		dist = Vector3.zero;
 
 		 
@@ -108,7 +108,7 @@ public class PlayerState : MonoBehaviour {
 		dist = _velocity * Time.deltaTime;
 
 //		Debug.Log (dist*100);
-		cc.Move (dist);
+		if(pv.isMine) cc.Move (dist);
 
 
 		/*
@@ -120,8 +120,7 @@ public class PlayerState : MonoBehaviour {
 			anim.SetBool ("IsHit", false);
 		}
 		//Flinch
-
-	}
+		
 	}
 
 	[RPC]
