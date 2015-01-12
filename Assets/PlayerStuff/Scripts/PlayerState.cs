@@ -8,6 +8,7 @@ public class PlayerState : MonoBehaviour {
 	PlayerMovement pm;
 	PlayerCombat pc;
 	MouseLook ml;
+	PhotonView pv;
 	GamePhysics phys = new GamePhysics();
 	enum dir {none, forward, backwards, left, right};
 
@@ -41,12 +42,13 @@ public class PlayerState : MonoBehaviour {
 		pm = GetComponent<PlayerMovement>();
 		pc = GetComponent<PlayerCombat>();
 		ml = GetComponent<MouseLook> ();
+		pv = GetComponent<PhotonView> ();
 		fx = GameObject.FindObjectOfType<FXManager> ();
 	}
 	
 	// Update is called once per frame
 	void Update () {
-	
+	if(pv.isMine){
 		if(ml != null) ml.playerControl = playerControl;
 
 		knockoutTime -= Time.deltaTime;
@@ -66,13 +68,13 @@ public class PlayerState : MonoBehaviour {
 		if (pc.isUsingAttack && pc.currentAttack is MovementAttack) {
 			addedVelocity=Vector3.zero;
 		}
-
+	}
 	}
 
 	// FixedUpdate is called once per physics loop
 	// Do all movement and physics here
 	void FixedUpdate(){
-
+	if(pv.isMine){
 		dist = Vector3.zero;
 
 		 
@@ -119,7 +121,7 @@ public class PlayerState : MonoBehaviour {
 		}
 		//Flinch
 
-
+	}
 	}
 
 	[RPC]

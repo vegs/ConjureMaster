@@ -41,8 +41,9 @@ public class NetworkManager_GAME : MonoBehaviour {
 			inGameMenu_charSelect = true;
 			connecting = false;
 			justJoined = true;		
+		}else{
+			PhotonNetwork.JoinRoom (PhotonNetwork.player.customProperties["RoomName"].ToString());
 		}
-		PhotonNetwork.JoinRoom (PhotonNetwork.player.customProperties["RoomName"].ToString());
 	}
 
 	public void AddChatMessage(string m){
@@ -297,6 +298,7 @@ public class NetworkManager_GAME : MonoBehaviour {
 		myPlayerGO.GetComponent<Jump> ().enabled = true;
 		myPlayerGO.GetComponent<MouseLook> ().enabled = true;
 		myPlayerGO.GetComponent<PlayerCombat> ().enabled = true;
+		myPlayerGO.GetComponent<PlayerState> ().enabled = true;
 
 
 		mainCamera.GetComponent<LookAtCamera> ().body = (GameObject)myPlayerGO;

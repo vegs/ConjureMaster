@@ -22,7 +22,7 @@ public class NetworkManager_MENU : MonoBehaviour {
 	//GameObject menu = GameObject.Find("Name");
 	void Awake (){
 		Debug.Log ("Awake");
-		GameObject.Find("NameField").GetComponent<InputField>().text=PhotonNetwork.player.name;
+		GameObject.Find("NameField").GetComponent<InputField>().text=PlayerPrefs.GetString ("Username", "");;
 		Canvas_Main.SetActive (false);
 		Canvas_Rooms.SetActive (false);
 		Canvas_NewRoom.SetActive (false);
@@ -125,16 +125,16 @@ public class NetworkManager_MENU : MonoBehaviour {
 			sd.Set(sd.x, 0f);
 			foreach (RoomInfo room in roomList) {
 				sd.Set (sd.x, sd.y+30f);
-				for (int i = 0; i < 40; i++) {
-					GameObject NewRoomEntry=(GameObject)Canvas.Instantiate(RoomEntry);
-					NewRoomEntry.transform.SetParent(GameObject.Find("RoomListAreaPanel").transform);
-					RectTransform rect = NewRoomEntry.GetComponent<RectTransform>();
-					rect.localScale=new Vector3(1f,1f,1f);
-					rect.FindChild("Button").GetComponent<Button>().onClick.AddListener (delegate{JoinARoom (room);});
-					rect.FindChild("Text").GetComponent<Text>().text="  "+room.name+"   |   "+room.playerCount+"/"+room.maxPlayers+"  |  "+ room.customProperties["Map"]+ "  |  " + room.customProperties["Lives"] + "  |  " + room.customProperties["Owner"];
-					GameObject.Find("RoomListAreaPanel").GetComponent<RectTransform>().sizeDelta.Set(GameObject.Find("RoomListAreaPanel").GetComponent<RectTransform>().sizeDelta.x, GameObject.Find("RoomListAreaPanel").GetComponent<RectTransform>().sizeDelta.y+30f);;
-					Debug.Log(room.name);
-				}
+
+				GameObject NewRoomEntry=(GameObject)Canvas.Instantiate(RoomEntry);
+				NewRoomEntry.transform.SetParent(GameObject.Find("RoomListAreaPanel").transform);
+				RectTransform rect = NewRoomEntry.GetComponent<RectTransform>();
+				rect.localScale=new Vector3(1f,1f,1f);
+				rect.FindChild("Button").GetComponent<Button>().onClick.AddListener (delegate{JoinARoom (room);});
+				rect.FindChild("Text").GetComponent<Text>().text="  "+room.name+"   |   "+room.playerCount+"/"+room.maxPlayers+"  |  "+ room.customProperties["Map"]+ "  |  " + room.customProperties["Lives"] + "  |  " + room.customProperties["Owner"];
+				GameObject.Find("RoomListAreaPanel").GetComponent<RectTransform>().sizeDelta.Set(GameObject.Find("RoomListAreaPanel").GetComponent<RectTransform>().sizeDelta.x, GameObject.Find("RoomListAreaPanel").GetComponent<RectTransform>().sizeDelta.y+30f);;
+				Debug.Log(room.name);
+
 			}
 		}
 	}
