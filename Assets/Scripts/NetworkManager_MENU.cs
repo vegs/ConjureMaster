@@ -11,6 +11,7 @@ public class NetworkManager_MENU : MonoBehaviour {
 	public GameObject Canvas_Rooms;
 	public GameObject Canvas_NewRoom;
 	public GameObject RoomEntry;
+	GameObject stockSlider;
 	RoomInfo[] roomList;
 	bool loaded=false;
 	string selectedMap="";
@@ -22,7 +23,10 @@ public class NetworkManager_MENU : MonoBehaviour {
 	//GameObject menu = GameObject.Find("Name");
 	void Awake (){
 		Debug.Log ("Awake");
-		GameObject.Find("NameField").GetComponent<InputField>().text=PlayerPrefs.GetString ("Username", "");;
+		GameObject.Find("NameField").GetComponent<InputField>().text=PlayerPrefs.GetString ("Username", "");
+		stockSlider = GameObject.Find ("StockSlider");
+		stockSlider.transform.GetComponentInChildren<Text>().text = stockSlider.GetComponent<Slider>().value.ToString();
+
 		Canvas_Main.SetActive (false);
 		Canvas_Rooms.SetActive (false);
 		Canvas_NewRoom.SetActive (false);
@@ -52,6 +56,11 @@ public class NetworkManager_MENU : MonoBehaviour {
 		PhotonNetwork.player.name=GameObject.Find("NameField").GetComponent<InputField>().text;
 		//PlayerPrefs.SetString ("Username", PhotonNetwork.player.name);
 	}
+	public void OnStockSliderValueChange(){
+		stockSlider.transform.GetComponentInChildren<Text>().text = stockSlider.GetComponent<Slider>().value.ToString();
+		
+	}
+
 	public void Connect(){
 		PhotonNetwork.ConnectUsingSettings ( "ConjureMaster v002" );
 		Debug.Log ("CONNECTED");
@@ -67,24 +76,6 @@ public class NetworkManager_MENU : MonoBehaviour {
 			GameObject.Find ("roomtext").GetComponent<Text>().text+="\nNew Room: "+room.name+"   ;   "+room.playerCount+"/"+room.maxPlayers;
 		}
 	}
-	//
-	//	void OnJoinedLobby(){
-	//		Debug.Log ( "OnJoinedLobby" );
-	//		PhotonNetwork.JoinRandomRoom ();
-	//	}
-	
-	//	void OnPhotonRandomJoinFailed(){
-	//		Canvas_Main.SetActive (false);
-	//		Canvas_Rooms.SetActive (true);
-	//		Debug.Log ( "OnPhotonRandomLobbyFailed" );
-	//		PhotonNetwork.CreateRoom ( "TESTROOM" );
-	//				Debug.Log ("RoomlistLength   "+PhotonNetwork.countOfRooms);
-	//				Debug.Log ("RoomlistLength22   "+PhotonNetwork.GetRoomList().Length);
-	//		foreach (RoomInfo room in PhotonNetwork.GetRoomList ()) {
-	//			Debug.Log(room.name);
-	//			GameObject.Find ("roomtext").GetComponent<Text>().text="\nNew Room: "+room.name+"   ;   "+room.playerCount+"/"+room.maxPlayers;
-	//		}
-	//	}
 
 
 	public void CreateNewRoom(){
