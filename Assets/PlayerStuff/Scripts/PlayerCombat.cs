@@ -126,7 +126,7 @@ public class PlayerCombat : MonoBehaviour {
 				if (cc.isGrounded && cc != null){
 					//Weak attacks (LMB)
 					if(Input.GetButton("WeakAttack") ) {
-						if (Input.GetButton("Vertical")){
+						if (Input.GetAxis("Vertical") > 0){
 							InitiateAttackChain(1);
 						}
 						else if (Input.GetButton("Horizontal")){
