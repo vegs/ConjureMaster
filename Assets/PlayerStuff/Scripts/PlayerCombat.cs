@@ -147,7 +147,12 @@ public class PlayerCombat : MonoBehaviour {
 				}
 				//Airborne attacks
 				else{
-					
+					if(Input.GetButton("WeakAttack") ) {
+							InitiateAttackChain(3);
+						}
+					else if (Input.GetButton("StrongAttack")) {
+							InitiateAttackChain(6);
+					}
 				}
 			}
 		}

@@ -12,6 +12,12 @@ public class LookAtCamera : MonoBehaviour {
 
 	float positonModifier = 10f;
 
+	private Vector3 _currLookDir = Vector3.zero;
+	public Vector3 currLookDir{
+		get { return _currLookDir; }
+	}
+
+
 	void LateUpdate() {
 		if (body == null || head == null) {
 			Debug.LogError ("No player for camera to follow") ;		
@@ -63,7 +69,11 @@ public class LookAtCamera : MonoBehaviour {
 
 			//transform.Translate(test.x, test.y +5, test.z -7);
 			//transform.position.Equals(test);//.Set(test.x, test.y + 5, test.z - 7);
+
+			_currLookDir = body.transform.position - this.transform.position;
+
 		}
+
 	}
 
 	private void smoothPosition(Vector3 fromPos, Vector3 toPos)
@@ -85,5 +95,6 @@ public class LookAtCamera : MonoBehaviour {
 			toTarget = new Vector3(wallHit.point.x, wallHit.point.y, wallHit.point.z);
 		}
 	}
+
 	
 }

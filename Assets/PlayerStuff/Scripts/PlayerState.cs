@@ -34,6 +34,8 @@ public class PlayerState : MonoBehaviour {
 
 	FXManager fx = null;
 
+	Camera mainCam = null;
+	public GameObject head;
 
 	// Use this for initialization
 	void Start () {
@@ -44,6 +46,8 @@ public class PlayerState : MonoBehaviour {
 		ml = GetComponent<MouseLook> ();
 		pv = GetComponent<PhotonView> ();
 		fx = GameObject.FindObjectOfType<FXManager> ();
+
+		mainCam = GameObject.FindWithTag("MainCamera").camera;
 	}
 	
 	// Update is called once per frame
@@ -74,7 +78,7 @@ public class PlayerState : MonoBehaviour {
 	// FixedUpdate is called once per physics loop
 	// Do all movement and physics here
 	void FixedUpdate(){
-	
+
 		dist = Vector3.zero;
 
 		 
@@ -89,7 +93,16 @@ public class PlayerState : MonoBehaviour {
 
 		if (pc.isUsingAttack && pc.currentAttack is MovementAttack && pc.isDangerous) {
 			MovementAttack currentAttack=(MovementAttack)pc.currentAttack;
-			_velocity = this.transform.rotation * currentAttack.moveDir.normalized * currentAttack.moveSpeed;
+
+			if (currentAttack.moveDir == new Vector3(9,9,9)) { //Direction (9,9,9) indicates attack-dir should be "current mouselook"
+
+				Vector3 currAttMovDir = mainCam.GetComponent <LookAtCamera> ().currLookDir;
+
+				_velocity = /*this.transform.rotation *  */ currAttMovDir.normalized * currentAttack.moveSpeed;
+
+			} else {
+				_velocity = this.transform.rotation * currentAttack.moveDir.normalized * currentAttack.moveSpeed;
+			}
 		} else {
 			_velocity = moveVelocity + addedVelocity;
 

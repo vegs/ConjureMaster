@@ -305,6 +305,8 @@ public class NetworkManager_GAME : MonoBehaviour {
 		mainCamera.GetComponent<LookAtCamera> ().head = myPlayerGO.transform.FindChild ("Head").gameObject;
 		mainCamera.SetActive(true);
 
+		myPlayerGO.GetComponent<PlayerState> ().head = (GameObject)myPlayerGO;
+
 	}
 
 

@@ -73,7 +73,7 @@ public class DefaultCharacter : CharacterData {
 		weakAOEAttack.forceModifier= 0.1f;
 		weakAOEAttack.preHitDelay = 0.1f;
 		weakAOEAttack.postHitDelay = 0.1f;
-		weakAOEAttack.hitDuration = 0.41f;
+		weakAOEAttack.hitDuration = 0.5f;
 		weakAOEAttack.hasPlayerControl = true;
 		weakAOEAttack.isAOE = true;
 		weakAOEAttack.hitBox = hbx.HitBox_AOE_Big;
@@ -91,10 +91,10 @@ public class DefaultCharacter : CharacterData {
 		weakAOEAttack_Air.attackName = "Weak Airborne AOE Attack";
 		weakAOEAttack_Air.dirModifier = new Vector3 (0, 0, 1);
 		weakAOEAttack_Air.dmgModifier = 1f;
-		weakAOEAttack_Air.forceModifier= 0.1f;
+		weakAOEAttack_Air.forceModifier= 1f;
 		weakAOEAttack_Air.preHitDelay = 0.1f;
 		weakAOEAttack_Air.postHitDelay = 0.1f;
-		weakAOEAttack_Air.hitDuration = 0.41f;
+		weakAOEAttack_Air.hitDuration = 0.5f;
 		weakAOEAttack_Air.hasPlayerControl = true;
 		weakAOEAttack_Air.isAOE = true;
 		weakAOEAttack_Air.hitBox = hbx.HitBox_AOE_Big;
@@ -152,7 +152,24 @@ public class DefaultCharacter : CharacterData {
 
 
 		// airborne : Strong airborne attack
-
+		MovementAttack strongSlidingAttack_Air = new MovementAttack ();
+		strongSlidingAttack_Air.dirModifier = new Vector3 (0, 1, 2);
+		strongSlidingAttack_Air.dmgModifier = 0.5f;
+		strongSlidingAttack_Air.forceModifier = 0.5f;
+		strongSlidingAttack_Air.preHitDelay = 0;
+		strongSlidingAttack_Air.postHitDelay = 0.1f;
+		strongSlidingAttack_Air.hitDuration = 0.5f;
+		strongSlidingAttack_Air.hasPlayerControl = false;
+		strongSlidingAttack_Air.isAOE = false;
+		strongSlidingAttack_Air.hitBox = hbx.HitBox_Front_Big;
+		strongSlidingAttack_Air.fxName = null;
+		strongSlidingAttack_Air.moveDir = new Vector3 (9, 9, 9); //Direction (9,9,9) signifies along "current Mouselook"
+		strongSlidingAttack_Air.moveSpeed = 30f;
+		strongSlidingAttack_Air.moveDist = 10f;
+		
+		AttackChain strongSlidingAttack_AirChain = new AttackChain (6);
+		strongSlidingAttack_AirChain.AddAttack (strongSlidingAttack_Air);
+		AddAttackChain (strongSlidingAttack_AirChain);
 
 
 		/*
