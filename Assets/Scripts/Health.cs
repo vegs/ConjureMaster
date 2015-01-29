@@ -3,36 +3,36 @@ using System.Collections;
 
 public class Health : MonoBehaviour {
 
-	//public float hitPoints = 100f;
 	public float damagePercent = 0;
 	float currentHitPoints;
-//
-//	public string userName = "Please enter username";
-//	private GUIText[] labelContent;
+	public int lives;
+	NetworkManager_GAME nm;
 
-	
-	// Use this for initialization
-	void Start () {
-		//currentHitPoints = hitPoints;
+
+
+	void Awake () {
+		nm = GameObject.FindObjectOfType<NetworkManager_GAME>();
+
+		if (PhotonNetwork.room != null) {
+			lives = nm.lives;
+		}
+	}
+	void OnJoinedRoom(){
+		lives = (int)PhotonNetwork.room.customProperties["Lives"];
+	}
+
+	void Update()
+	{
+		PhotonNetwork.player.customProperties ["Damage"] = damagePercent;
 	}
 	
 	[RPC]
 	public void TakeDamage(float attackStr) {
 		damagePercent += attackStr;
-
+		
 		Debug.Log ("Damage" + damagePercent);
-//		if(currentHitPoints <= 0) {
-//			Die();
-//		}
 	}
-	
-//	void OnGUI() {
-//		if( GetComponent<PhotonView>().isMine && gameObject.tag == "Player" ) {
-//			if( GUI.Button(new Rect (Screen.width-100, 0, 100, 40), "Suicide!") ) {
-//				Die ();
-//			}
-//		}
-//	}
+
 	[RPC]
 	public void Die() {
 		if( GetComponent<PhotonView>().instantiationId==0 ) {
@@ -41,14 +41,17 @@ public class Health : MonoBehaviour {
 		else {
 			if( GetComponent<PhotonView>().isMine ) {
 				if( gameObject.tag == "Player" ) {		// This is my actual PLAYER object, then initiate the respawn process
-					NetworkManager_GAME nm = GameObject.FindObjectOfType<NetworkManager_GAME>();
-					
+
 					nm.standbyCamera.SetActive(true);
 					nm.mainCamera.SetActive(false);
+					nm.lives = nm.lives - 1;
+					Debug.Log("Lives: "+nm.lives);
+					if (nm.lives > 0){
+						nm.respawnTimer = 3f;
+					}
 
-					nm.respawnTimer = 3f;
 				}
-				
+
 				PhotonNetwork.Destroy(gameObject);
 			}
 		}

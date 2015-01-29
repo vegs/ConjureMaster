@@ -84,7 +84,7 @@ public class NetworkManager_MENU : MonoBehaviour {
 		if (PhotonNetwork.connectedAndReady){
 			if (GameObject.Find ("RoomNameField").GetComponent<InputField>().text!="" && selectedMap!=""){
 
-				Hashtable ht=new Hashtable(){{"Map", selectedMap},{"Lives", 5}, {"Owner", PlayerPrefs.GetString("Username")}};
+				Hashtable ht=new Hashtable(){{"Map", selectedMap},{"Lives", (int)stockSlider.GetComponent<Slider>().value}, {"Owner", PlayerPrefs.GetString("Username")}};
 
 				string[] roomPropsInLobby = { "Map", "Lives" , "Owner"};
 				
@@ -139,13 +139,19 @@ public class NetworkManager_MENU : MonoBehaviour {
 		}else if(room.customProperties ["Map"].Equals("Graveyard")) {
 			Application.LoadLevel("Graveyard_v02");		
 		}
-		Hashtable ht=new Hashtable(){{"RoomName", room.name}};
-		PhotonNetwork.player.SetCustomProperties(ht);
+
+		// Setting player properties
+		SetPlayerProps ();
 		//PhotonNetwork.JoinRoom(room.name);
 	}
 
-	void OnJoinedRoom(){
+	void OnJoinedRoom()
+	{
 		Canvas_Rooms.SetActive (false);
+
+		// Setting player properties
+		SetPlayerProps ();
+
 		Debug.Log (PhotonNetwork.room.customProperties ["Map"]);
 		if (PhotonNetwork.room.customProperties ["Map"].Equals("Skyscraper")) {
 			Debug.Log (PhotonNetwork.room.customProperties ["Map"]);
@@ -154,6 +160,12 @@ public class NetworkManager_MENU : MonoBehaviour {
 			Debug.Log (PhotonNetwork.room.customProperties ["Map"]);
 			Application.LoadLevel("Graveyard_v02");		
 		}
+	}
+
+	void SetPlayerProps()
+	{
+		Hashtable ht=new Hashtable(){{"RoomName", PhotonNetwork.room.name},{"Lives", PhotonNetwork.room.customProperties["Lives"]},{"Damage", 0}};
+		PhotonNetwork.player.SetCustomProperties(ht);
 	}
 
 	public void SelectMap(string map){

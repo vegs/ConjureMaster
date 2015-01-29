@@ -16,6 +16,8 @@ public class NetworkManager_GAME : MonoBehaviour {
 	float chatDelay=0f;
 	int pvID=0;
 
+	public int lives;
+
 	string selectedChar = null;
 	bool inGameMenu=false;
 	bool inGameMenu_main=false;
@@ -31,6 +33,7 @@ public class NetworkManager_GAME : MonoBehaviour {
 		Debug.Log ("Awake");
 
 	}
+
 	void Start(){
 		Debug.Log ("Start");
 		spawnSpots= GameObject.FindObjectsOfType<SpawnSpot>();
@@ -40,7 +43,9 @@ public class NetworkManager_GAME : MonoBehaviour {
 			inGameMenu_main = false;
 			inGameMenu_charSelect = true;
 			connecting = false;
-			justJoined = true;		
+			justJoined = true;	
+			lives = (int)PhotonNetwork.room.customProperties["Lives"];
+			Debug.Log ("lives: "+lives);
 		}else{
 			PhotonNetwork.JoinRoom (PhotonNetwork.player.customProperties["RoomName"].ToString());
 		}
@@ -170,6 +175,12 @@ public class NetworkManager_GAME : MonoBehaviour {
 				nameTagStyle_outline.normal.textColor = Color.black;
 				nameTagStyle.normal.textColor = Color.red;
 
+//				foreach (PhotonPlayer p in PhotonNetwork.playerList){
+//					p.Find(
+//
+//				}
+
+
 				GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
 				GameObject Hud = GameObject.FindGameObjectWithTag("HUD");
 				int c=0;
@@ -195,7 +206,8 @@ public class NetworkManager_GAME : MonoBehaviour {
 					{
 						if (child.name == "p"+c.ToString()){
 							child.gameObject.SetActive(true);
-							child.GetComponentInChildren<Text>().text=PhotonPlayer.Find(pO.GetComponent<PhotonView>().ownerId).name + ": \n"+ pO.GetComponent<Health>().damagePercent;
+
+							child.GetComponentInChildren<Text>().text=PhotonPlayer.Find(pO.GetComponent<PhotonView>().ownerId).name + ": \n"+ pO.GetComponent<Health>().damagePercent + "\nLives: "+pO.GetComponent<Health>().lives;
 							//GameObject panel = child.FindChild("Panel").gameObject;
 							Color32 fr = new Color32(76,76,173,96);
 							Color32 en = new Color32(179,0,0,125);
@@ -282,6 +294,8 @@ public class NetworkManager_GAME : MonoBehaviour {
 		inGameMenu_charSelect = true;
 		connecting = false;
 		justJoined = true;
+		lives = (int)PhotonNetwork.room.customProperties["Lives"];
+		Debug.Log ("lives: "+lives);
 	}
 
 	void SpawnMyPlayer(){
