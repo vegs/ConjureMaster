@@ -5,6 +5,7 @@ public class LookAtCamera : MonoBehaviour {
 	public GameObject body;
 	public GameObject head;
 
+
 	//Smoothing and Damping
 	private Vector3 velocityCamSmooth = Vector3.zero;
 	[SerializeField]
@@ -15,6 +16,13 @@ public class LookAtCamera : MonoBehaviour {
 	private Vector3 _currLookDir = Vector3.zero;
 	public Vector3 currLookDir{
 		get { return _currLookDir; }
+	}
+
+	// Bool to determine whether the camera should move/follow or not
+	public bool _autoMove = true;
+	public bool autoMover{
+		get { return _autoMove; }
+		set { _autoMove = value; }
 	}
 
 
@@ -64,7 +72,10 @@ public class LookAtCamera : MonoBehaviour {
 			//transform.position = temp;
 			//Vector3 targetPos = target.transform;
 			//print ("camera: " + temp);
+
+			if (_autoMove){
 			smoothPosition(this.transform.position, temp);
+			}
 			transform.LookAt(head.transform);
 
 			//transform.Translate(test.x, test.y +5, test.z -7);

@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 
@@ -17,6 +17,11 @@ public class NetworkManager_GAME : MonoBehaviour {
 	int pvID=0;
 
 	public int lives;
+
+	public bool justDied = false;
+	public Vector3 DeathPos = Vector3.zero;
+	public float deathWatch = 0;
+	GameObject deadPlayer = null;
 
 	string selectedChar = null;
 	bool inGameMenu=false;
@@ -318,6 +323,7 @@ public class NetworkManager_GAME : MonoBehaviour {
 		mainCamera.GetComponent<LookAtCamera> ().body = (GameObject)myPlayerGO;
 		mainCamera.GetComponent<LookAtCamera> ().head = myPlayerGO.transform.FindChild ("Head").gameObject;
 		mainCamera.SetActive(true);
+		mainCamera.GetComponent<LookAtCamera> ()._autoMove = true;
 
 		myPlayerGO.GetComponent<PlayerState> ().head = (GameObject)myPlayerGO;
 
@@ -326,13 +332,44 @@ public class NetworkManager_GAME : MonoBehaviour {
 
 	void Update() {
 		if(respawnTimer > 0) {
+
 			respawnTimer -= Time.deltaTime;
 			
 			if(respawnTimer <= 0) {
 				// Time to respawn the player!
 				SpawnMyPlayer();
 			}
+
+			if(justDied)
+			{
+				justDied = false;
+				//deadPlayer = (GameObject) PhotonNetwork.Instantiate("Dying_" + selectedChar, DeathPos, Quaternion.identity, 0);
+				deadPlayer = (GameObject) PhotonNetwork.Instantiate(selectedChar, DeathPos, Quaternion.identity, 0);
+				if(deadPlayer = null)
+				{
+					Debug.Log("deadspawner failed");
+				}else{
+					Debug.Log("deadspawner succeeded");
+				}
+
+				mainCamera.GetComponent<LookAtCamera> ()._autoMove = false;
+				mainCamera.GetComponent<LookAtCamera> ().body = (GameObject)deadPlayer;
+				mainCamera.GetComponent<LookAtCamera> ().head = deadPlayer.transform.FindChild ("Head").gameObject;
+			}
+
+			if(deathWatch > 0) {
+				deathWatch -= Time.deltaTime;
+
+				if(deathWatch <= 0){
+					mainCamera.SetActive(false);
+					standbyCamera.SetActive(true);
+				}
+			}
+
+
 		}
+
+
 
 		//MENU
 		if (PhotonNetwork.connected == false && inGameMenu == false) {

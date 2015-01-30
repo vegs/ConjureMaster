@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 
 public class Health : MonoBehaviour {
@@ -42,14 +42,17 @@ public class Health : MonoBehaviour {
 			if( GetComponent<PhotonView>().isMine ) {
 				if( gameObject.tag == "Player" ) {		// This is my actual PLAYER object, then initiate the respawn process
 
-					nm.standbyCamera.SetActive(true);
-					nm.mainCamera.SetActive(false);
+					//nm.standbyCamera.SetActive(true);
+					//nm.mainCamera.SetActive(false);
 					nm.lives = nm.lives - 1;
 					Debug.Log("Lives: "+nm.lives);
 					if (nm.lives > 0){
 						nm.respawnTimer = 3f;
 					}
 
+					nm.justDied = true;
+					nm.deathWatch = 1f;
+					nm.DeathPos = this.transform.position;
 				}
 
 				PhotonNetwork.Destroy(gameObject);
