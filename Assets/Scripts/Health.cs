@@ -51,8 +51,10 @@ public class Health : MonoBehaviour {
 					}
 
 					nm.justDied = true;
-					nm.deathWatch = 1f;
+					nm.deathWatch = 2f;
 					nm.DeathPos = this.transform.position;
+					nm.DeathRot = this.transform.rotation;
+					nm.DeathVel = this.GetComponent<PlayerState> ().velocity;
 				}
 
 				PhotonNetwork.Destroy(gameObject);

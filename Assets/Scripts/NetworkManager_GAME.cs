@@ -20,6 +20,8 @@ public class NetworkManager_GAME : MonoBehaviour {
 
 	public bool justDied = false;
 	public Vector3 DeathPos = Vector3.zero;
+	public Quaternion DeathRot = Quaternion.identity;
+	public Vector3 DeathVel = Vector3.zero;
 	public float deathWatch = 0;
 	GameObject deadPlayer = null;
 
@@ -340,36 +342,32 @@ public class NetworkManager_GAME : MonoBehaviour {
 				SpawnMyPlayer();
 			}
 
-			if(justDied)
-			{
-				justDied = false;
-				//deadPlayer = (GameObject) PhotonNetwork.Instantiate("Dying_" + selectedChar, DeathPos, Quaternion.identity, 0);
-				deadPlayer = (GameObject) PhotonNetwork.Instantiate(selectedChar, DeathPos, Quaternion.identity, 0);
-				if(deadPlayer = null)
-				{
-					Debug.Log("deadspawner failed");
-				}else{
-					Debug.Log("deadspawner succeeded");
-				}
+		}
 
-				mainCamera.GetComponent<LookAtCamera> ()._autoMove = false;
-				mainCamera.GetComponent<LookAtCamera> ().body = (GameObject)deadPlayer;
-				mainCamera.GetComponent<LookAtCamera> ().head = deadPlayer.transform.FindChild ("Head").gameObject;
-			}
+		if(justDied)
+		{
+			justDied = false;
+			deadPlayer = (GameObject) PhotonNetwork.Instantiate("Dying_" + selectedChar, DeathPos, DeathRot, 0);
 
-			if(deathWatch > 0) {
-				deathWatch -= Time.deltaTime;
+			deadPlayer.GetComponent<SelfDestruct> ().selfDestructTime = deathWatch;
+			deadPlayer.GetComponent<DyingPlayerState> ().velocity = DeathVel;
 
-				if(deathWatch <= 0){
-					mainCamera.SetActive(false);
-					standbyCamera.SetActive(true);
-				}
+			mainCamera.GetComponent<LookAtCamera> ()._autoMove = false;
+			mainCamera.GetComponent<LookAtCamera> ().body = (GameObject)deadPlayer;
+			mainCamera.GetComponent<LookAtCamera> ().head = deadPlayer.transform.FindChild ("Head").gameObject;
+
+		}
+		
+		if(deathWatch > 0) {
+			deathWatch -= Time.deltaTime;
+			
+			if(deathWatch <= 0){
+				mainCamera.SetActive(false);
+				standbyCamera.SetActive(true);
 			}
 
 
 		}
-
-
 
 		//MENU
 		if (PhotonNetwork.connected == false && inGameMenu == false) {
@@ -386,6 +384,8 @@ public class NetworkManager_GAME : MonoBehaviour {
 			}
 		}
 	}
+
+
 
 	void Command(string cmd){
 		switch (cmd) 

@@ -27,7 +27,7 @@ public class zClockworkKey : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 
-		if (transform.parent != null && transform.parent.parent.parent.parent.parent.parent.parent.tag == "Player"){
+		if (transform.parent != null /*&& (transform.parent.parent.parent.parent.parent.parent.parent.tag == "Player")*/){
 			Debug.Log("zKey found its parent!");
 			anim = transform.parent.parent.parent.parent.parent.parent.parent.GetComponent<Animator>();	
 		}
@@ -38,6 +38,8 @@ public class zClockworkKey : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+
+		if(anim != null){
 
 		AnimatorStateInfo stateInfo = anim.GetCurrentAnimatorStateInfo(0);
 
@@ -61,6 +63,6 @@ public class zClockworkKey : MonoBehaviour {
 		transform.Rotate (0,0,Time.deltaTime*slowSpeed);
 		}
 
-
+		}
 	}
 }
