@@ -141,7 +141,8 @@ public class NetworkManager_MENU : MonoBehaviour {
 		}
 
 		// Setting player properties
-		SetPlayerProps ();
+		Hashtable ht=new Hashtable(){{"RoomName", room.name},{"Lives", room.customProperties["Lives"]},{"Damage", 0}};
+		PhotonNetwork.player.SetCustomProperties(ht);
 		//PhotonNetwork.JoinRoom(room.name);
 	}
 
