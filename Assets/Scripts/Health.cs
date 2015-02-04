@@ -24,6 +24,7 @@ public class Health : MonoBehaviour {
 	void Update()
 	{
 		PhotonNetwork.player.customProperties ["Damage"] = damagePercent;
+		//lives = nm.lives;
 	}
 	
 	[RPC]
@@ -45,6 +46,7 @@ public class Health : MonoBehaviour {
 					//nm.standbyCamera.SetActive(true);
 					//nm.mainCamera.SetActive(false);
 					nm.lives = nm.lives - 1;
+
 					Debug.Log("Lives: "+nm.lives);
 					if (nm.lives > 0){
 						nm.respawnTimer = 3f;

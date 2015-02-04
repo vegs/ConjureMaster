@@ -26,15 +26,11 @@ public class NetworkManager_MENU : MonoBehaviour {
 	public Texture Icon_Elf;
 	public Texture Icon_Random;
 
-	Texture Icon_SelectedCharacter;
-
 	Hashtable player_ht=new Hashtable(){{"RoomName", ""},{"Character", "Random"},{"Lives", 0},{"Damage", 0}};
-
-
-	
+		
 	public bool offlineMode = false;
 	bool connecting = false;
-	//GameObject menu = GameObject.Find("Name");
+
 	void Awake (){
 		Debug.Log ("Awake");
 		GameObject.Find("NameField").GetComponent<InputField>().text=PlayerPrefs.GetString ("Username", "");
@@ -50,8 +46,6 @@ public class NetworkManager_MENU : MonoBehaviour {
 	void OnLevelWasLoaded () {
 		Debug.Log ("OnLevelWasLoaded");
 		loaded = true;
-		//PhotonNetwork.LeaveRoom ();
-		RoomsScreen();
 		Connect ();
 
 	}
@@ -61,7 +55,6 @@ public class NetworkManager_MENU : MonoBehaviour {
 			MainScreen ();
 		
 		PhotonNetwork.player.name = PlayerPrefs.GetString ("Username", "King Joffrey");
-		//GameObject.Find("NameField").GetComponent<InputField>().text=PhotonNetwork.player.name;
 	}
 	void OnDestroy(){
 		PlayerPrefs.SetString ("Username", PhotonNetwork.player.name);
@@ -69,7 +62,6 @@ public class NetworkManager_MENU : MonoBehaviour {
 	
 	public void OnNameChange(){
 		PhotonNetwork.player.name=GameObject.Find("NameField").GetComponent<InputField>().text;
-		//PlayerPrefs.SetString ("Username", PhotonNetwork.player.name);
 	}
 	public void OnStockSliderValueChange(){
 		stockSlider.transform.GetComponentInChildren<Text>().text = stockSlider.GetComponent<Slider>().value.ToString();
@@ -108,13 +100,6 @@ public class NetworkManager_MENU : MonoBehaviour {
 		}
 	}
 
-
-	
-
-
-//	public void LeaveRoom(){
-//		PhotonNetwork.LeaveRoom ();
-//	}
 	
 	void OnGUI(){
 		GUILayout.Label (PhotonNetwork.connectionStateDetailed.ToString ());
@@ -148,17 +133,6 @@ public class NetworkManager_MENU : MonoBehaviour {
 
 	void JoinARoom(RoomInfo room){
 		PhotonNetwork.JoinRoom (room.name);
-
-//		if (room.customProperties ["Map"].Equals("Skyscraper")) {
-//			Application.LoadLevel("Skyscraper_v01");		
-//		}else if(room.customProperties ["Map"].Equals("Graveyard")) {
-//			Application.LoadLevel("Graveyard_v02");		
-//		}
-//
-//		// Setting player properties
-//		Hashtable ht=new Hashtable(){{"RoomName", room.name},{"Lives", room.customProperties["Lives"]},{"Damage", 0}};
-//		PhotonNetwork.player.SetCustomProperties(ht);
-
 	}
 
 	void OnJoinedRoom()
@@ -167,24 +141,11 @@ public class NetworkManager_MENU : MonoBehaviour {
 		player_ht ["Lives"] = PhotonNetwork.room.customProperties["Lives"];
 		UpdateCustomPlayerProps ();
 
-		RoomLobbyScreen ();
-
-		// Setting player properties
-
-
-//		Debug.Log (PhotonNetwork.room.customProperties ["Map"]);
-//		if (PhotonNetwork.room.customProperties ["Map"].Equals("Skyscraper")) {
-//			Debug.Log (PhotonNetwork.room.customProperties ["Map"]);
-//			Application.LoadLevel("Skyscraper_v01");		
-//		}else if(PhotonNetwork.room.customProperties ["Map"].Equals("Graveyard")) {
-//			Debug.Log (PhotonNetwork.room.customProperties ["Map"]);
-//			Application.LoadLevel("Graveyard_v02");		
-//		}
+		RoomLobbyScreen ();	
 	}
 
 	void UpdateCustomPlayerProps()
 	{
-		//Hashtable ht=new Hashtable(){{"RoomName", PhotonNetwork.room.name},{"Character", "Random"},{"Lives", PhotonNetwork.room.customProperties["Lives"]},{"Damage", 0}};
 		PhotonNetwork.player.SetCustomProperties(player_ht);
 	}
 
@@ -197,25 +158,8 @@ public class NetworkManager_MENU : MonoBehaviour {
 		UpdateCustomPlayerProps();
 
 		Debug.Log (character);
-		SetIcon ();
 	}
-	void SetIcon(){
-		switch (selectedCharacter)
-		{
-		case "Zombie":
-			Icon_SelectedCharacter = Icon_Zombie;
-			break;
-		case "Samurai":
-			Icon_SelectedCharacter = Icon_Samurai;
-			break;
-		case "Elf":
-			Icon_SelectedCharacter = Icon_Elf;
-			break;
-		default:
-			Icon_SelectedCharacter = Icon_Random;
-			break;
-		}
-	}
+
 	Texture GetIcon(string character){
 		switch (character)
 		{
@@ -238,6 +182,11 @@ public class NetworkManager_MENU : MonoBehaviour {
 		if (inRoomLobby) {
 			if (PhotonNetwork.inRoom){
 				UpdatePlayerList();
+				if(PhotonNetwork.isMasterClient){
+					Canvas_RoomLobby.transform.FindChild ("StartButton").gameObject.SetActive(true);
+				}else{
+					Canvas_RoomLobby.transform.FindChild ("StartButton").gameObject.SetActive(false);
+				}
 			}
 			else{
 				inRoomLobby = false;
@@ -247,35 +196,30 @@ public class NetworkManager_MENU : MonoBehaviour {
 	}
 
 	void UpdatePlayerList(){
-
-		//if(PhotonNetwork.inRoom && playerList != PhotonNetwork.playerList){
-			playerList=PhotonNetwork.playerList;
-			List<GameObject> children = new List<GameObject>();
-			foreach (Transform child in GameObject.Find("PlayerListAreaPanel").transform) children.Add(child.gameObject);
-			children.ForEach(child => Destroy(child));
-			Vector2 sd=GameObject.Find("PlayerListAreaPanel").GetComponent<RectTransform>().sizeDelta;
-			sd.Set(sd.x, 0f);
-			foreach (PhotonPlayer p in PhotonNetwork.playerList) {
-				sd.Set (sd.x, sd.y+30f);
-				
-				GameObject NewPlayerEntry=(GameObject)Canvas.Instantiate(RoomLobbyPlayer);
-				NewPlayerEntry.transform.SetParent(GameObject.Find("PlayerListAreaPanel").transform);
-				RectTransform rect = NewPlayerEntry.GetComponent<RectTransform>();
-				rect.localScale=new Vector3(1f,1f,1f);
-				if(p.isMasterClient) rect.FindChild("Name").FindChild("host").gameObject.SetActive(true);
-				rect.FindChild("Icon").GetComponentInChildren<RawImage>().texture = GetIcon(p.customProperties["Character"].ToString());
-				//Debug.Log (p.customProperties["Character"].ToString());
-				rect.FindChild("Name").GetComponentInChildren<Text>().text=p.name;
-				//GameObject.Find("RoomListAreaPanel").GetComponent<RectTransform>().sizeDelta.Set(GameObject.Find("RoomListAreaPanel").GetComponent<RectTransform>().sizeDelta.x, GameObject.Find("RoomListAreaPanel").GetComponent<RectTransform>().sizeDelta.y+30f);;
-				//Debug.Log(p.name);
-				
-			}
-		//}
+	
+		playerList=PhotonNetwork.playerList;
+		List<GameObject> children = new List<GameObject>();
+		foreach (Transform child in GameObject.Find("PlayerListAreaPanel").transform) children.Add(child.gameObject);
+		children.ForEach(child => Destroy(child));
+		Vector2 sd=GameObject.Find("PlayerListAreaPanel").GetComponent<RectTransform>().sizeDelta;
+		sd.Set(sd.x, 0f);
+		foreach (PhotonPlayer p in PhotonNetwork.playerList) {
+			sd.Set (sd.x, sd.y+30f);
+			
+			GameObject NewPlayerEntry=(GameObject)Canvas.Instantiate(RoomLobbyPlayer);
+			NewPlayerEntry.transform.SetParent(GameObject.Find("PlayerListAreaPanel").transform);
+			RectTransform rect = NewPlayerEntry.GetComponent<RectTransform>();
+			rect.localScale=new Vector3(1f,1f,1f);
+			if(p.isMasterClient) rect.FindChild("Name").FindChild("host").gameObject.SetActive(true);
+			rect.FindChild("Icon").GetComponentInChildren<RawImage>().texture = GetIcon(p.customProperties["Character"].ToString());
+			rect.FindChild("Name").GetComponentInChildren<Text>().text=p.name;
+		}
+		
 	}
 
 	public void LeaveRoom(){
 		PhotonNetwork.LeaveRoom ();
-		RoomsScreen ();
+		//RoomsScreen ();
 	}
 
 	public void StartGame(){
@@ -324,15 +268,14 @@ public class NetworkManager_MENU : MonoBehaviour {
 		Canvas_Main.SetActive (false);
 		Canvas_Rooms.SetActive (false);
 		Canvas_NewRoom.SetActive (false);
-		SetIcon();
 
 		inRoomLobby = true;
 
 		Canvas_RoomLobby.transform.FindChild ("Title").GetComponent<Text> ().text = PhotonNetwork.room.name;
 
-		if (!PhotonNetwork.isMasterClient) {
-			Canvas_RoomLobby.transform.FindChild ("StartButton").gameObject.SetActive(false);
-		}
+//		if (!PhotonNetwork.isMasterClient) {
+//			Canvas_RoomLobby.transform.FindChild ("StartButton").gameObject.SetActive(false);
+//		}
 
 		UpdatePlayerList ();
 
