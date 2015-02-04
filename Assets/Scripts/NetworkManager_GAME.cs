@@ -24,6 +24,9 @@ public class NetworkManager_GAME : MonoBehaviour {
 	public Vector3 DeathVel = Vector3.zero;
 	public float deathWatch = 0;
 	GameObject deadPlayer = null;
+	float startTimer = 0;
+	float startTime = 5f;
+	bool started = false;
 
 	string selectedChar = null;
 	bool inGameMenu=false;
@@ -48,11 +51,27 @@ public class NetworkManager_GAME : MonoBehaviour {
 		if (PhotonNetwork.inRoom) {
 			inGameMenu = true;
 			inGameMenu_main = false;
-			inGameMenu_charSelect = true;
+			inGameMenu_charSelect = false;
 			connecting = false;
 			justJoined = true;	
 			lives = (int)PhotonNetwork.room.customProperties["Lives"];
 			Debug.Log ("lives: "+lives);
+			selectedChar="Player_"+PhotonNetwork.player.customProperties["Character"]+"01";
+			if(selectedChar=="Player_Random01"){
+				int c=Random.Range(0,3);
+				Debug.Log("Random: " +c);
+				if(c==0){
+					selectedChar="Player_Zombie01";
+				}else if (c==1){
+					selectedChar="Player_Samurai01";
+				}else{
+					selectedChar="Player_Elf01";
+				}
+
+				
+			}
+
+
 		}else{
 			PhotonNetwork.JoinRoom (PhotonNetwork.player.customProperties["RoomName"].ToString());
 		}
@@ -74,33 +93,6 @@ public class NetworkManager_GAME : MonoBehaviour {
 	void OnGUI(){
 		GUILayout.Label ( PhotonNetwork.connectionStateDetailed.ToString() );
 
-		//MENU		
-		if (PhotonNetwork.connected == false && connecting == false) {
-			GUILayout.BeginArea( new Rect(0, 0, Screen.width, Screen.height) );
-			GUILayout.BeginHorizontal();
-			GUILayout.FlexibleSpace();
-			GUILayout.BeginVertical();
-			GUILayout.FlexibleSpace();
-			GUILayout.BeginHorizontal();
-			GUILayout.Label("Username: ");
-			PhotonNetwork.player.name = GUILayout.TextField (PhotonNetwork.player.name,GUILayout.MaxWidth(300), GUILayout.MinWidth(300) );
-			GUILayout.EndHorizontal();
-
-			if (GUILayout.Button("Single Player") ) {
-				connecting=true;
-				PhotonNetwork.offlineMode = true;
-				OnJoinedLobby();
-			}
-			if (GUILayout.Button("Multi Player") ) {
-				connecting=true;
-				Connect ();
-			}
-			GUILayout.FlexibleSpace();
-			GUILayout.EndVertical();
-			GUILayout.FlexibleSpace();
-			GUILayout.EndHorizontal();
-			GUILayout.EndArea();
-		}
 		//IN GAME
 		if (PhotonNetwork.connected == true && connecting == false) {
 
@@ -114,54 +106,20 @@ public class NetworkManager_GAME : MonoBehaviour {
 				//Menu Title
 				GUILayout.BeginHorizontal();
 				if(inGameMenu_main) GUILayout.Label("Menu");
-				if(inGameMenu_charSelect) GUILayout.Label("Choose your character");
 				GUILayout.EndHorizontal();
 				
 				//Menu Buttons
 				if(inGameMenu_main){
-					if (GUILayout.Button("Change Character") ) {
-						inGameMenu_main=false;
-						inGameMenu_charSelect=true;
-					}
 					if (GUILayout.Button("Disconnect") ) {
 						standbyCamera.SetActive(true);
 						mainCamera.SetActive(false);
 						PhotonNetwork.Disconnect ();
-						Application.LoadLevel("Startup");
+						Application.LoadLevel("Startup_Graveyard");
 					}
 					if (GUILayout.Button("Close") ) {
 						inGameMenu=false;
 					}
 
-				}else if(inGameMenu_charSelect){
-					if (GUILayout.Button("Zombie") ) {
-						selectedChar="Player_Zombie01";
-						inGameMenu=false;
-						if(justJoined) SpawnMyPlayer();
-					}
-					if (GUILayout.Button("Samurai") ) {
-						selectedChar="Player_Samurai01";
-						inGameMenu=false;
-						if(justJoined) SpawnMyPlayer();
-					}
-					if (GUILayout.Button("Fairy") ) {
-						selectedChar="Player_Elf01";
-						inGameMenu=false;
-						if(justJoined) SpawnMyPlayer();
-					}
-					if (GUILayout.Button("iRobot") ) {
-						selectedChar="Player_iRobot01";
-						inGameMenu=false;
-						if(justJoined) SpawnMyPlayer();
-					}
-					if(justJoined){
-
-					}else{
-						if (GUILayout.Button("< Back") ) {
-							inGameMenu_main=true;
-							inGameMenu_charSelect=false;
-						}	
-					}
 				}
 				GUILayout.FlexibleSpace();
 				GUILayout.EndVertical();
@@ -169,7 +127,7 @@ public class NetworkManager_GAME : MonoBehaviour {
 				GUILayout.EndHorizontal();
 				GUILayout.EndArea();
 			}
-			else if (myPlayerGO != null)
+			if (myPlayerGO != null)
 			{
 				GUIStyle nameTagStyle = new GUIStyle();
 				nameTagStyle.fontSize = 18;
@@ -333,6 +291,16 @@ public class NetworkManager_GAME : MonoBehaviour {
 
 
 	void Update() {
+		if (!started) {
+			startTimer += Time.deltaTime;
+			if(startTimer>=startTime){
+				SpawnMyPlayer();
+				started = true;
+			}
+		
+		}
+
+
 		if(respawnTimer > 0) {
 
 			respawnTimer -= Time.deltaTime;
