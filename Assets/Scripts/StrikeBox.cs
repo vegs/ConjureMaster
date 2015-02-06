@@ -6,6 +6,7 @@ public class StrikeBox : MonoBehaviour {
 	PhotonView pv = null;
 	BotMovement bm = null; 
 	PlayerState ps = null;
+	Health h = null;
 
 	void OnTriggerEnter(Collider collision) {
 
@@ -17,6 +18,7 @@ public class StrikeBox : MonoBehaviour {
 			//pm = collision.GetComponent<PlayerMovement> ();
 			//bm = collision.GetComponent<BotMovement> ();
 			ps = collision.GetComponent<PlayerState> ();
+			h = collision.GetComponent<Health> ();
 			//player.enabled = true;
 			//CharacterController nm = collision.GetComponent<CharacterController> ();
 			//Vector3 direction = this.transform.forward + (this.transform.up) * 0.5f; //this is supposed to be the direction in attack data
@@ -40,6 +42,8 @@ public class StrikeBox : MonoBehaviour {
 					}
 
 					Debug.Log (direction);
+					//ps.Hit (direction, attackForce, this.transform.position);
+					//h.TakeDamage(attackDamage);
 					pv.RPC ("Hit", PhotonTargets.AllBuffered, direction, attackForce, this.transform.position);
 					pv.RPC ("TakeDamage", PhotonTargets.AllBuffered, attackDamage);
 					//player.Hit( direction, strength);

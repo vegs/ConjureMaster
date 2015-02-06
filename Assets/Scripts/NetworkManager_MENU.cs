@@ -36,7 +36,7 @@ public class NetworkManager_MENU : MonoBehaviour {
 	float chatDelay=0f;
 
 
-	Hashtable player_ht=new Hashtable(){{"RoomName", ""},{"Character", "Random"},{"Lives", 0},{"Damage", 0}};
+	Hashtable player_ht=new Hashtable(){{"RoomName", ""},{"Character", "Random"},{"Lives", 0},{"Damage", 0},{"Loaded",false}};
 		
 	public bool offlineMode = false;
 	bool connecting = false;
@@ -57,7 +57,7 @@ public class NetworkManager_MENU : MonoBehaviour {
 	void OnLevelWasLoaded () {
 		Debug.Log ("OnLevelWasLoaded");
 		loaded = true;
-		Connect ();
+		PhotonNetwork.LeaveRoom();
 
 	}
 
@@ -206,7 +206,11 @@ public class NetworkManager_MENU : MonoBehaviour {
 					Canvas_RoomLobby.transform.FindChild ("StartButton").gameObject.SetActive(false);
 				}				
 				if (Input.GetKey(KeyCode.Return)){
-					Chat();
+					//if(Canvas_RoomLobby.transform.FindChild ("ChatInputPanel").FindChild ("InputField").GetComponent<InputField> ().isFocused)
+						Chat();
+					//else{
+						EventSystem.current.SetSelectedGameObject(Canvas_RoomLobby.transform.FindChild ("ChatInputPanel").FindChild ("InputField").gameObject, null);
+					//}
 				}
 				Canvas_RoomLobby.transform.FindChild ("ServerInfoPanel").transform.FindChild ("Info_Host").GetComponent<Text> ().text = "Host:  " + PhotonNetwork.masterClient.name;
 			}
@@ -312,8 +316,7 @@ public class NetworkManager_MENU : MonoBehaviour {
 
 	//CHAT
 	public void Chat(){
-
-		string m = Canvas_RoomLobby.transform.FindChild ("ChatInputPanel").FindChild ("InputField").GetComponent<InputField> ().text;
+		string m = Canvas_RoomLobby.transform.FindChild ("ChatInputPanel").FindChild ("InputField").GetComponent<InputField> ().text.Trim();
 		Canvas_RoomLobby.transform.FindChild ("ChatInputPanel").FindChild ("InputField").GetComponent<InputField>().text = string.Empty;
 		if (m.Length > 0)
 			GetComponent<PhotonView> ().RPC ("AddChatMessage_RPC", PhotonTargets.All, PhotonNetwork.player.name+": "+ m);
@@ -342,6 +345,8 @@ public class NetworkManager_MENU : MonoBehaviour {
 		}
 
 		Canvas_RoomLobby.transform.FindChild ("Scrollbar").GetComponent<Scrollbar> ().value = 0.0f;
+		EventSystem.current.SetSelectedGameObject(Canvas_RoomLobby.transform.FindChild ("ChatInputPanel").FindChild ("InputField").gameObject, null);
+
 	}
 
 	

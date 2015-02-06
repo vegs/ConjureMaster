@@ -1,36 +1,29 @@
 using UnityEngine;
 using System.Collections;
+using Hashtable = ExitGames.Client.Photon.Hashtable;
 
 public class Health : MonoBehaviour {
 
 	public float damagePercent = 0;
 	float currentHitPoints;
-	public int lives;
 	NetworkManager_GAME nm;
 
 
 
 	void Awake () {
 		nm = GameObject.FindObjectOfType<NetworkManager_GAME>();
-
-		if (PhotonNetwork.room != null) {
-			lives = nm.lives;
-		}
-	}
-	void OnJoinedRoom(){
-		lives = (int)PhotonNetwork.room.customProperties["Lives"];
 	}
 
 	void Update()
 	{
-		PhotonNetwork.player.customProperties ["Damage"] = damagePercent;
-		//lives = nm.lives;
+
 	}
 	
 	[RPC]
 	public void TakeDamage(float attackStr) {
 		damagePercent += attackStr;
-		
+
+
 		Debug.Log ("Damage" + damagePercent);
 	}
 
@@ -45,11 +38,13 @@ public class Health : MonoBehaviour {
 
 					//nm.standbyCamera.SetActive(true);
 					//nm.mainCamera.SetActive(false);
-					nm.lives = nm.lives - 1;
+					nm.LoseLife();
 
 					Debug.Log("Lives: "+nm.lives);
-					if (nm.lives > 0){
+					if ((int)PhotonNetwork.player.customProperties["Lives"] > 0){
 						nm.respawnTimer = 3f;
+					}else{
+						nm.Defeat();
 					}
 
 					nm.justDied = true;

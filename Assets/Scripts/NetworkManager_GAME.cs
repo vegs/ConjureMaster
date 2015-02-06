@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using Hashtable = ExitGames.Client.Photon.Hashtable;
 
 public class NetworkManager_GAME : MonoBehaviour {
 	public GameObject standbyCamera;
@@ -35,6 +36,16 @@ public class NetworkManager_GAME : MonoBehaviour {
 	bool justJoined=false;
 	GameObject myPlayerGO = null;
 
+	bool gameOver=false;
+	public GameObject Canvas_HUD;
+	bool canStart = false;
+	Hashtable player_ht;
+	PhotonPlayer[] playerList;
+	public GameObject playerScoreEntry;
+	public Texture Icon_Zombie;
+	public Texture Icon_Samurai;
+	public Texture Icon_Elf;
+	public Texture Icon_Random;
 
 	void OnLevelWasLoaded () {
 		Debug.Log ("OnLevelWasLoaded");
@@ -44,11 +55,19 @@ public class NetworkManager_GAME : MonoBehaviour {
 
 	}
 
+	void UpdateCustomPlayerProps()
+	{
+		PhotonNetwork.player.SetCustomProperties(player_ht);
+	}
+
 	void Start(){
 		Debug.Log ("Start");
 		spawnSpots= GameObject.FindObjectsOfType<SpawnSpot>();
 		chatMessages = new List<string> ();
 		if (PhotonNetwork.inRoom) {
+			player_ht=PhotonNetwork.player.customProperties;
+			player_ht["Loaded"]=true;
+
 			inGameMenu = true;
 			inGameMenu_main = false;
 			inGameMenu_charSelect = false;
@@ -62,14 +81,19 @@ public class NetworkManager_GAME : MonoBehaviour {
 				Debug.Log("Random: " +c);
 				if(c==0){
 					selectedChar="Player_Zombie01";
+					player_ht["Character"]="Zombie";
 				}else if (c==1){
 					selectedChar="Player_Samurai01";
+					player_ht["Character"]="Samurai";
 				}else{
 					selectedChar="Player_Elf01";
+					player_ht["Character"]="Elf";
 				}
 
 				
 			}
+
+			UpdateCustomPlayerProps();
 
 
 		}else{
@@ -88,6 +112,81 @@ public class NetworkManager_GAME : MonoBehaviour {
 
 	void Connect(){
 		PhotonNetwork.ConnectUsingSettings ( "ConjureMaster v002" );
+	}
+
+	Texture GetCharacterIcon(string character){
+		switch (character)
+		{
+		case "Zombie":
+			return Icon_Zombie;
+			break;
+		case "Samurai":
+			return Icon_Samurai;
+			break;
+		case "Elf":
+			return Icon_Elf;
+			break;
+		default:
+			return Icon_Random;
+			break;
+		}
+	}
+
+	public void LoseLife(){
+		player_ht ["Lives"] = (int) player_ht ["Lives"] - 1;
+		UpdateCustomPlayerProps ();
+		UpdateScores ();
+	}
+
+
+	void UpdateScores(){
+		
+		playerList=PhotonNetwork.playerList;
+		List<GameObject> children = new List<GameObject>();
+		foreach (Transform child in GameObject.Find("PlayerScoreAreaPanel").transform) children.Add(child.gameObject);
+		children.ForEach(child => Destroy(child));
+
+		bool vicCheck = true;
+		float s = 100f;
+		foreach (PhotonPlayer p in PhotonNetwork.playerList) {
+			GameObject.Find("PlayerScore").GetComponent<RectTransform>().sizeDelta = new Vector2(s, 100f);
+			GameObject NewPlayerScoreEntry=(GameObject)Canvas.Instantiate(playerScoreEntry);
+			NewPlayerScoreEntry.transform.SetParent(GameObject.Find("PlayerScoreAreaPanel").transform);
+			RectTransform rect = NewPlayerScoreEntry.GetComponent<RectTransform>();
+			rect.localScale=new Vector3(1f,1f,1f);
+			if(p.ID==PhotonNetwork.player.ID) rect.GetComponent<Image>().color=new Color32(0, 73, 118, 151);
+			rect.FindChild("Name").GetComponent<Text>().text=p.name;
+			//rect.FindChild("Damage").GetComponent<Text>().text=p.customProperties["Damage"] + "%";
+			rect.FindChild("BackgroundImage").GetComponent<RawImage>().texture = GetCharacterIcon(p.customProperties["Character"].ToString());
+			rect.FindChild("LivesPanel").GetComponentInChildren<RawImage>().texture = GetCharacterIcon(p.customProperties["Character"].ToString());
+			rect.FindChild("LivesPanel").GetComponentInChildren<Text>().text = "x"+p.customProperties["Lives"];
+
+
+
+			GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
+
+			foreach (GameObject pO in players){
+				if(pO.GetComponent<PhotonView>().ownerId == p.ID)
+				   	rect.FindChild("Damage").GetComponent<Text>().text=pO.GetComponent<Health>().damagePercent + "%";
+			}
+
+			s+=200f;
+
+			if(p.ID != PhotonNetwork.player.ID){
+				if(vicCheck && (int)p.customProperties["Lives"]<=0) vicCheck = true;
+				else vicCheck=false;
+			}
+		}
+		if (vicCheck)
+						Victory ();
+		
+	}
+
+
+	public void HomeButton(){
+
+		Application.LoadLevel("Startup_Graveyard");
+
 	}
 
 	void OnGUI(){
@@ -127,7 +226,7 @@ public class NetworkManager_GAME : MonoBehaviour {
 				GUILayout.EndHorizontal();
 				GUILayout.EndArea();
 			}
-			if (myPlayerGO != null)
+			if (!gameOver && myPlayerGO != null)
 			{
 				GUIStyle nameTagStyle = new GUIStyle();
 				nameTagStyle.fontSize = 18;
@@ -164,35 +263,9 @@ public class NetworkManager_GAME : MonoBehaviour {
 						GUI.Label (new Rect(pos.x-75, (Screen.height - pos.y + 1) - pos.z/Camera.main.fieldOfView, 150, 150), name, nameTagStyle_outline);
 						GUI.Label (new Rect(pos.x-75, (Screen.height - pos.y) - pos.z/Camera.main.fieldOfView, 150, 150), name, nameTagStyle);
 					}
-
-
-					c++;
-					foreach (Transform child in Hud.transform)
-					{
-						if (child.name == "p"+c.ToString()){
-							child.gameObject.SetActive(true);
-
-							child.GetComponentInChildren<Text>().text=PhotonPlayer.Find(pO.GetComponent<PhotonView>().ownerId).name + ": \n"+ pO.GetComponent<Health>().damagePercent + "\nLives: "+pO.GetComponent<Health>().lives;
-							//GameObject panel = child.FindChild("Panel").gameObject;
-							Color32 fr = new Color32(76,76,173,96);
-							Color32 en = new Color32(179,0,0,125);
-							if(pO.GetPhotonView().isMine){
-								child.GetComponent<Image>().color=fr;
-								//panel.GetComponent<Image>().color.Equals(new Color(76,76,173,96));
-							}else{
-								child.GetComponent<Image>().color=en;
-							}
-
-							//child.gameObject.SetActive(true);
-						}
-						if(child.name.CompareTo("p"+c.ToString())>0){
-							child.gameObject.SetActive(false);
-							//child.GetComponent<Text>().text= "";
-							//child.FindChild("Panel").gameObject.SetActive(false);
-						}
-					}
 				}
 			}
+
 
 
 
@@ -243,25 +316,6 @@ public class NetworkManager_GAME : MonoBehaviour {
 
 	}
 
-	void OnJoinedLobby(){
-		Debug.Log ( "OnJoinedLobby" );
-		PhotonNetwork.JoinRandomRoom ();
-	}
-
-	void OnPhotonRandomJoinFailed(){
-		Debug.Log ( "OnPhotonRandomLobbyFailed" );
-		PhotonNetwork.CreateRoom ( null );
-	}
-
-	void OnJoinedRoom(){
-		inGameMenu = true;
-		inGameMenu_main = false;
-		inGameMenu_charSelect = true;
-		connecting = false;
-		justJoined = true;
-		lives = (int)PhotonNetwork.room.customProperties["Lives"];
-		Debug.Log ("lives: "+lives);
-	}
 
 	void SpawnMyPlayer(){
 		justJoined=false;
@@ -290,27 +344,59 @@ public class NetworkManager_GAME : MonoBehaviour {
 	}
 
 
+	public void Defeat(){
+		gameOver = true;
+		Canvas_HUD.transform.FindChild("Defeat").gameObject.SetActive(true);
+	}
+
+	public void Victory(){
+		gameOver = true;
+		Canvas_HUD.transform.FindChild("Victory").gameObject.SetActive(true);
+	}
+
 	void Update() {
-		if (!started) {
+		if(!canStart){
+			foreach (PhotonPlayer p in PhotonNetwork.playerList) {
+				if((bool) p.customProperties["Loaded"] == true)
+					canStart = true;
+				else{
+					canStart = false;
+					break;
+				}
+			}
+		}
+
+		if(canStart && !started){
+			Canvas_HUD.transform.FindChild("Waiting").gameObject.SetActive(false);
+			Canvas_HUD.transform.FindChild("StartCounter").gameObject.SetActive(true);
 			startTimer += Time.deltaTime;
+			Canvas_HUD.transform.FindChild("StartCounter").FindChild("Counter").GetComponent<Text>().text=((int)(startTime-startTimer)).ToString();
 			if(startTimer>=startTime){
+				Canvas_HUD.transform.FindChild("StartCounter").gameObject.SetActive(false);
 				SpawnMyPlayer();
 				started = true;
 			}
-		
 		}
+
+		if(started && !gameOver) UpdateScores ();
+
 
 
 		if(respawnTimer > 0) {
 
 			respawnTimer -= Time.deltaTime;
-			
+			Canvas_HUD.transform.FindChild("StartCounter").gameObject.SetActive(true);
+			Canvas_HUD.transform.FindChild("StartCounter").FindChild("Header").GetComponent<Text>().text="RESPAWNING IN...";
+			Canvas_HUD.transform.FindChild("StartCounter").FindChild("Counter").GetComponent<Text>().text=((int)respawnTimer).ToString();
 			if(respawnTimer <= 0) {
 				// Time to respawn the player!
+				Canvas_HUD.transform.FindChild("StartCounter").gameObject.SetActive(false);
 				SpawnMyPlayer();
 			}
 
 		}
+
+
 
 		if(justDied)
 		{
@@ -336,21 +422,30 @@ public class NetworkManager_GAME : MonoBehaviour {
 
 
 		}
-
-		//MENU
-		if (PhotonNetwork.connected == false && inGameMenu == false) {
+		if (!gameOver) {
+			Screen.showCursor = false;
+			Screen.lockCursor = true;
+		} else {
 			Screen.showCursor = true;
 			Screen.lockCursor = false;
 		}
-		//GAME
-		if (PhotonNetwork.connected == true && connecting == false) {
 
-			if (Input.GetButtonDown ("Menu")) {
-				inGameMenu=true;
-				inGameMenu_main=true;
-				inGameMenu_charSelect=false;
-			}
-		}
+		//			Screen.lockCursor = false;
+
+//		//MENU
+//		if (PhotonNetwork.connected == false && inGameMenu == false) {
+//			Screen.showCursor = true;
+//			Screen.lockCursor = false;
+//		}
+//		//GAME
+//		if (PhotonNetwork.connected == true && connecting == false) {
+//
+//			if (Input.GetButtonDown ("Menu")) {
+//				inGameMenu=true;
+//				inGameMenu_main=true;
+//				inGameMenu_charSelect=false;
+//			}
+//		}
 	}
 
 
