@@ -13,6 +13,8 @@ public class NetworkManager_MENU : MonoBehaviour {
 	public GameObject Canvas_RoomLobby;
 	public GameObject RoomEntry;
 	public GameObject RoomLobbyPlayer;
+	public GameObject ChatMsg;
+
 	GameObject stockSlider;
 	RoomInfo[] roomList;
 	PhotonPlayer[] playerList;
@@ -25,6 +27,14 @@ public class NetworkManager_MENU : MonoBehaviour {
 	public Texture Icon_Samurai;
 	public Texture Icon_Elf;
 	public Texture Icon_Random;
+	public Texture Icon_Graveyard;
+	public Texture Icon_Skyscraper;
+
+	List<string> chatMessages;
+	string currentMsg="";
+	bool toggleChat=false;
+	float chatDelay=0f;
+
 
 	Hashtable player_ht=new Hashtable(){{"RoomName", ""},{"Character", "Random"},{"Lives", 0},{"Damage", 0}};
 		
@@ -32,6 +42,7 @@ public class NetworkManager_MENU : MonoBehaviour {
 	bool connecting = false;
 
 	void Awake (){
+		chatMessages = new List<string> ();
 		Debug.Log ("Awake");
 		GameObject.Find("NameField").GetComponent<InputField>().text=PlayerPrefs.GetString ("Username", "");
 		stockSlider = GameObject.Find ("StockSlider");
@@ -100,11 +111,7 @@ public class NetworkManager_MENU : MonoBehaviour {
 		}
 	}
 
-	
-	void OnGUI(){
-		GUILayout.Label (PhotonNetwork.connectionStateDetailed.ToString ());
-	}
-	
+
 	void OnReceivedRoomListUpdate(){
 		Debug.Log (PhotonNetwork.insideLobby);
 		if(PhotonNetwork.insideLobby && roomList != PhotonNetwork.GetRoomList ()){
@@ -112,12 +119,8 @@ public class NetworkManager_MENU : MonoBehaviour {
 			List<GameObject> children = new List<GameObject>();
 			foreach (Transform child in GameObject.Find("RoomListAreaPanel").transform) children.Add(child.gameObject);
 			children.ForEach(child => Destroy(child));
-			Vector2 sd=GameObject.Find("RoomListAreaPanel").GetComponent<RectTransform>().sizeDelta;
-			sd.Set(sd.x, 0f);
+
 			foreach (RoomInfo room in roomList) {
-
-				sd.Set (sd.x, sd.y+30f);
-
 				GameObject NewRoomEntry=(GameObject)Canvas.Instantiate(RoomEntry);
 				NewRoomEntry.transform.SetParent(GameObject.Find("RoomListAreaPanel").transform);
 				RectTransform rect = NewRoomEntry.GetComponent<RectTransform>();
@@ -160,7 +163,7 @@ public class NetworkManager_MENU : MonoBehaviour {
 		Debug.Log (character);
 	}
 
-	Texture GetIcon(string character){
+	Texture GetCharacterIcon(string character){
 		switch (character)
 		{
 		case "Zombie":
@@ -177,6 +180,21 @@ public class NetworkManager_MENU : MonoBehaviour {
 			break;
 		}
 	}
+	Texture GetMapIcon(string map){
+		switch (map)
+		{
+		case "Graveyard":
+			return Icon_Graveyard;
+			break;
+		case "Skyscraper":
+			return Icon_Skyscraper;
+			break;
+		default:
+			return Icon_Random;
+			break;
+		}
+	}
+
 
 	void Update(){
 		if (inRoomLobby) {
@@ -186,7 +204,11 @@ public class NetworkManager_MENU : MonoBehaviour {
 					Canvas_RoomLobby.transform.FindChild ("StartButton").gameObject.SetActive(true);
 				}else{
 					Canvas_RoomLobby.transform.FindChild ("StartButton").gameObject.SetActive(false);
+				}				
+				if (Input.GetKey(KeyCode.Return)){
+					Chat();
 				}
+				Canvas_RoomLobby.transform.FindChild ("ServerInfoPanel").transform.FindChild ("Info_Host").GetComponent<Text> ().text = "Host:  " + PhotonNetwork.masterClient.name;
 			}
 			else{
 				inRoomLobby = false;
@@ -201,17 +223,14 @@ public class NetworkManager_MENU : MonoBehaviour {
 		List<GameObject> children = new List<GameObject>();
 		foreach (Transform child in GameObject.Find("PlayerListAreaPanel").transform) children.Add(child.gameObject);
 		children.ForEach(child => Destroy(child));
-		Vector2 sd=GameObject.Find("PlayerListAreaPanel").GetComponent<RectTransform>().sizeDelta;
-		sd.Set(sd.x, 0f);
+
 		foreach (PhotonPlayer p in PhotonNetwork.playerList) {
-			sd.Set (sd.x, sd.y+30f);
-			
 			GameObject NewPlayerEntry=(GameObject)Canvas.Instantiate(RoomLobbyPlayer);
 			NewPlayerEntry.transform.SetParent(GameObject.Find("PlayerListAreaPanel").transform);
 			RectTransform rect = NewPlayerEntry.GetComponent<RectTransform>();
 			rect.localScale=new Vector3(1f,1f,1f);
 			if(p.isMasterClient) rect.FindChild("Name").FindChild("host").gameObject.SetActive(true);
-			rect.FindChild("Icon").GetComponentInChildren<RawImage>().texture = GetIcon(p.customProperties["Character"].ToString());
+			rect.FindChild("Icon").GetComponentInChildren<RawImage>().texture = GetCharacterIcon(p.customProperties["Character"].ToString());
 			rect.FindChild("Name").GetComponentInChildren<Text>().text=p.name;
 		}
 		
@@ -219,7 +238,6 @@ public class NetworkManager_MENU : MonoBehaviour {
 
 	public void LeaveRoom(){
 		PhotonNetwork.LeaveRoom ();
-		//RoomsScreen ();
 	}
 
 	public void StartGame(){
@@ -271,13 +289,69 @@ public class NetworkManager_MENU : MonoBehaviour {
 
 		inRoomLobby = true;
 
-		Canvas_RoomLobby.transform.FindChild ("Title").GetComponent<Text> ().text = PhotonNetwork.room.name;
-
-//		if (!PhotonNetwork.isMasterClient) {
-//			Canvas_RoomLobby.transform.FindChild ("StartButton").gameObject.SetActive(false);
-//		}
+		Transform info = Canvas_RoomLobby.transform.FindChild ("ServerInfoPanel").transform;
+		info.FindChild ("Map_Icon").GetComponent<RawImage> ().texture = GetMapIcon (PhotonNetwork.room.customProperties ["Map"].ToString ());
+		info.FindChild ("Info_Map").GetComponent<Text> ().text += "  " + PhotonNetwork.room.customProperties ["Map"];
+		info.FindChild ("Info_Server").GetComponent<Text> ().text += "  " + PhotonNetwork.room.name;
+		//info.FindChild ("Info_Host").GetComponent<Text> ().text += "  " + PhotonNetwork.room.customProperties ["Owner"];
+		info.FindChild ("Info_Lives").GetComponent<Text> ().text += "  " + PhotonNetwork.room.customProperties ["Lives"];
 
 		UpdatePlayerList ();
 
 	}
+
+
+
+
+
+
+
+
+
+
+
+	//CHAT
+	public void Chat(){
+
+		string m = Canvas_RoomLobby.transform.FindChild ("ChatInputPanel").FindChild ("InputField").GetComponent<InputField> ().text;
+		Canvas_RoomLobby.transform.FindChild ("ChatInputPanel").FindChild ("InputField").GetComponent<InputField>().text = string.Empty;
+		if (m.Length > 0)
+			GetComponent<PhotonView> ().RPC ("AddChatMessage_RPC", PhotonTargets.All, PhotonNetwork.player.name+": "+ m);
+	}
+	
+	[RPC]
+	void AddChatMessage_RPC (string m){
+		chatMessages.Add (m);
+		UpdateChat();
+
+	}
+
+
+
+	void UpdateChat(){
+		List<GameObject> children = new List<GameObject>();
+		foreach (Transform child in GameObject.Find("ChatAreaPanel").transform) children.Add(child.gameObject);
+		children.ForEach(child => Destroy(child));
+
+		foreach (string msg in chatMessages) {			
+			GameObject NewChatEntry=(GameObject)Canvas.Instantiate(ChatMsg);
+			NewChatEntry.transform.SetParent(GameObject.Find("ChatAreaPanel").transform);
+			RectTransform rect = NewChatEntry.GetComponent<RectTransform>();
+			rect.localScale=new Vector3(1f,1f,1f);
+			NewChatEntry.GetComponent<Text>().text=msg;
+		}
+
+		Canvas_RoomLobby.transform.FindChild ("Scrollbar").GetComponent<Scrollbar> ().value = 0.0f;
+	}
+
+	
+	void OnGUI(){
+		GUILayout.Label (PhotonNetwork.connectionStateDetailed.ToString ());
+	}
+
 }
+
+
+
+
+
