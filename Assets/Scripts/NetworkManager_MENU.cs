@@ -254,7 +254,7 @@ public class NetworkManager_MENU : MonoBehaviour {
 	public void LoadLevel(){
 		if (PhotonNetwork.room.customProperties ["Map"].Equals("Skyscraper")) {
 			Debug.Log (PhotonNetwork.room.customProperties ["Map"]);
-			Application.LoadLevel("Skyscraper_v01");		
+			Application.LoadLevel("Skyscraper_v01c");		
 		}else if(PhotonNetwork.room.customProperties ["Map"].Equals("Graveyard")) {
 			Debug.Log (PhotonNetwork.room.customProperties ["Map"]);
 			Application.LoadLevel("Graveyard_v02");		

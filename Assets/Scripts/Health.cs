@@ -40,7 +40,6 @@ public class Health : MonoBehaviour {
 					//nm.mainCamera.SetActive(false);
 					nm.LoseLife();
 
-					Debug.Log("Lives: "+nm.lives);
 					if ((int)PhotonNetwork.player.customProperties["Lives"] > 0){
 						nm.respawnTimer = 3f;
 					}else{

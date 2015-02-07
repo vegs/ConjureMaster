@@ -4,43 +4,47 @@ using System.Collections.Generic;
 using Hashtable = ExitGames.Client.Photon.Hashtable;
 
 public class NetworkManager_GAME : MonoBehaviour {
+
+	//CAMERAS
 	public GameObject standbyCamera;
-	SpawnSpot[] spawnSpots;
 	public GameObject mainCamera;
-	// Use this for initialization
+
+	// OTHER
 	public bool offlineMode = false;
-	bool connecting = false;
-	public float respawnTimer = 0;
+
+	//CHAT
 	List<string> chatMessages;
 	string currentMsg="";
 	bool toggleChat=false;
 	float chatDelay=0f;
-	int pvID=0;
 
-	public int lives;
-
+	//DEATH CAM
 	public bool justDied = false;
 	public Vector3 DeathPos = Vector3.zero;
 	public Quaternion DeathRot = Quaternion.identity;
 	public Vector3 DeathVel = Vector3.zero;
 	public float deathWatch = 0;
 	GameObject deadPlayer = null;
+
+
+	// SPAWNING / GAMESTATE
+	bool gameOver=false;
+	bool canStart = false;
+	public float respawnTimer = 0;
 	float startTimer = 0;
 	float startTime = 5f;
 	bool started = false;
+	SpawnSpot[] spawnSpots;
 
-	string selectedChar = null;
-	bool inGameMenu=false;
-	bool inGameMenu_main=false;
-	bool inGameMenu_charSelect = false;
-	bool justJoined=false;
-	GameObject myPlayerGO = null;
 
-	bool gameOver=false;
-	public GameObject Canvas_HUD;
-	bool canStart = false;
+	// PLAYER VARIABLES
 	Hashtable player_ht;
 	PhotonPlayer[] playerList;
+	string selectedChar = null;
+	GameObject myPlayerGO = null;
+
+	// UI
+	public GameObject Canvas_HUD;
 	public GameObject playerScoreEntry;
 	public Texture Icon_Zombie;
 	public Texture Icon_Samurai;
@@ -55,27 +59,17 @@ public class NetworkManager_GAME : MonoBehaviour {
 
 	}
 
-	void UpdateCustomPlayerProps()
-	{
-		PhotonNetwork.player.SetCustomProperties(player_ht);
-	}
-
 	void Start(){
-		Debug.Log ("Start");
 		spawnSpots= GameObject.FindObjectsOfType<SpawnSpot>();
 		chatMessages = new List<string> ();
+
 		if (PhotonNetwork.inRoom) {
 			player_ht=PhotonNetwork.player.customProperties;
 			player_ht["Loaded"]=true;
 
-			inGameMenu = true;
-			inGameMenu_main = false;
-			inGameMenu_charSelect = false;
-			connecting = false;
-			justJoined = true;	
-			lives = (int)PhotonNetwork.room.customProperties["Lives"];
-			Debug.Log ("lives: "+lives);
 			selectedChar="Player_"+PhotonNetwork.player.customProperties["Character"]+"01";
+
+			//RANDOM CHARACTER
 			if(selectedChar=="Player_Random01"){
 				int c=Random.Range(0,3);
 				Debug.Log("Random: " +c);
@@ -88,17 +82,17 @@ public class NetworkManager_GAME : MonoBehaviour {
 				}else{
 					selectedChar="Player_Elf01";
 					player_ht["Character"]="Elf";
-				}
-
-				
+				}	
 			}
-
 			UpdateCustomPlayerProps();
-
-
 		}else{
-			PhotonNetwork.JoinRoom (PhotonNetwork.player.customProperties["RoomName"].ToString());
+			HomeButton();
 		}
+	}
+
+	void UpdateCustomPlayerProps()
+	{
+		PhotonNetwork.player.SetCustomProperties(player_ht);
 	}
 
 	public void AddChatMessage(string m){
@@ -170,15 +164,15 @@ public class NetworkManager_GAME : MonoBehaviour {
 				   	rect.FindChild("Damage").GetComponent<Text>().text=pO.GetComponent<Health>().damagePercent + "%";
 			}
 
-			s+=200f;
+			s+=100f;
 
 			if(p.ID != PhotonNetwork.player.ID){
 				if(vicCheck && (int)p.customProperties["Lives"]<=0) vicCheck = true;
 				else vicCheck=false;
 			}
 		}
-		if (vicCheck)
-						Victory ();
+		if (vicCheck && playerList.Length>1)
+			Victory ();
 		
 	}
 
@@ -190,88 +184,48 @@ public class NetworkManager_GAME : MonoBehaviour {
 	}
 
 	void OnGUI(){
-		GUILayout.Label ( PhotonNetwork.connectionStateDetailed.ToString() );
+		//GUILayout.Label ( PhotonNetwork.connectionStateDetailed.ToString() );
 
-		//IN GAME
-		if (PhotonNetwork.connected == true && connecting == false) {
-
-			if(inGameMenu){
-				GUILayout.BeginArea( new Rect(0, 0, Screen.width, Screen.height) );
-				GUILayout.BeginHorizontal();
-				GUILayout.FlexibleSpace();
-				GUILayout.BeginVertical();
-				GUILayout.FlexibleSpace();
-
-				//Menu Title
-				GUILayout.BeginHorizontal();
-				if(inGameMenu_main) GUILayout.Label("Menu");
-				GUILayout.EndHorizontal();
+		//NAME PLATES
+		if (started && !gameOver && myPlayerGO != null)
+		{
+			GUIStyle nameTagStyle = new GUIStyle();
+			nameTagStyle.fontSize = 18;
+			nameTagStyle.normal.textColor = Color.red;
+			nameTagStyle.alignment = TextAnchor.UpperCenter;
+			
+			GUIStyle nameTagStyle_outline = new GUIStyle();
+			nameTagStyle_outline.fontSize = 18;
+			nameTagStyle_outline.alignment = TextAnchor.UpperCenter;
+			nameTagStyle_outline.normal.textColor = Color.black;
+			nameTagStyle.normal.textColor = Color.red;
+			
+			
+			
+			GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
+			GameObject Hud = GameObject.FindGameObjectWithTag("HUD");
+			int c=0;
+			foreach (GameObject pO in players){
 				
-				//Menu Buttons
-				if(inGameMenu_main){
-					if (GUILayout.Button("Disconnect") ) {
-						standbyCamera.SetActive(true);
-						mainCamera.SetActive(false);
-						PhotonNetwork.Disconnect ();
-						Application.LoadLevel("Startup_Graveyard");
-					}
-					if (GUILayout.Button("Close") ) {
-						inGameMenu=false;
-					}
-
-				}
-				GUILayout.FlexibleSpace();
-				GUILayout.EndVertical();
-				GUILayout.FlexibleSpace();
-				GUILayout.EndHorizontal();
-				GUILayout.EndArea();
-			}
-			if (!gameOver && myPlayerGO != null)
-			{
-				GUIStyle nameTagStyle = new GUIStyle();
-				nameTagStyle.fontSize = 18;
-				nameTagStyle.normal.textColor = Color.red;
-				nameTagStyle.alignment = TextAnchor.UpperCenter;
+				Vector3 pos = Camera.main.WorldToScreenPoint(pO.transform.position + Vector3.up*4);
+				Vector3 pos1 = pO.transform.position + Vector3.up*4 - Camera.main.transform.position;
 				
-				GUIStyle nameTagStyle_outline = new GUIStyle();
-				nameTagStyle_outline.fontSize = 18;
-				nameTagStyle_outline.alignment = TextAnchor.UpperCenter;
-				nameTagStyle_outline.normal.textColor = Color.black;
-				nameTagStyle.normal.textColor = Color.red;
-
-//				foreach (PhotonPlayer p in PhotonNetwork.playerList){
-//					p.Find(
-//
-//				}
-
-
-				GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
-				GameObject Hud = GameObject.FindGameObjectWithTag("HUD");
-				int c=0;
-				foreach (GameObject pO in players){
-
-					Vector3 pos = Camera.main.WorldToScreenPoint(pO.transform.position + Vector3.up*4);
-					Vector3 pos1 = pO.transform.position + Vector3.up*4 - Camera.main.transform.position;
-
-					string name=PhotonPlayer.Find(pO.GetComponent<PhotonView>().ownerId).name;
-												
-					if (Vector3.Dot(Camera.main.transform.forward, pos1) > 0){
-						
-						GUI.Label (new Rect(pos.x-74, (Screen.height - pos.y) - pos.z/Camera.main.fieldOfView, 150, 150), name, nameTagStyle_outline);
-						GUI.Label (new Rect(pos.x-76, (Screen.height - pos.y) - pos.z/Camera.main.fieldOfView, 150, 150), name, nameTagStyle_outline);
-						GUI.Label (new Rect(pos.x-75, (Screen.height - pos.y - 1) - pos.z/Camera.main.fieldOfView, 150, 150), name, nameTagStyle_outline);
-						GUI.Label (new Rect(pos.x-75, (Screen.height - pos.y + 1) - pos.z/Camera.main.fieldOfView, 150, 150), name, nameTagStyle_outline);
-						GUI.Label (new Rect(pos.x-75, (Screen.height - pos.y) - pos.z/Camera.main.fieldOfView, 150, 150), name, nameTagStyle);
-					}
+				string name=PhotonPlayer.Find(pO.GetComponent<PhotonView>().ownerId).name;
+				
+				if (Vector3.Dot(Camera.main.transform.forward, pos1) > 0){
+					
+					GUI.Label (new Rect(pos.x-74, (Screen.height - pos.y) - pos.z/Camera.main.fieldOfView, 150, 150), name, nameTagStyle_outline);
+					GUI.Label (new Rect(pos.x-76, (Screen.height - pos.y) - pos.z/Camera.main.fieldOfView, 150, 150), name, nameTagStyle_outline);
+					GUI.Label (new Rect(pos.x-75, (Screen.height - pos.y - 1) - pos.z/Camera.main.fieldOfView, 150, 150), name, nameTagStyle_outline);
+					GUI.Label (new Rect(pos.x-75, (Screen.height - pos.y + 1) - pos.z/Camera.main.fieldOfView, 150, 150), name, nameTagStyle_outline);
+					GUI.Label (new Rect(pos.x-75, (Screen.height - pos.y) - pos.z/Camera.main.fieldOfView, 150, 150), name, nameTagStyle);
 				}
 			}
+		}
 
 
-
-
-
-
-
+		// CHAT
+		if (PhotonNetwork.connected == true) {
 			GUILayout.BeginArea( new Rect(0, 0, Screen.width, Screen.height) );
 			GUILayout.BeginVertical();
 			GUILayout.FlexibleSpace();	
@@ -318,9 +272,7 @@ public class NetworkManager_GAME : MonoBehaviour {
 
 
 	void SpawnMyPlayer(){
-		justJoined=false;
 		AddChatMessage ("Spawning player: " + PhotonNetwork.player.name);
-		connecting = false;
 
 		SpawnSpot mySpawnSpot = spawnSpots[Random.Range(0,spawnSpots.Length)];
 		myPlayerGO = (GameObject) PhotonNetwork.Instantiate (selectedChar, mySpawnSpot.transform.position, mySpawnSpot.transform.rotation, 0);
@@ -429,23 +381,6 @@ public class NetworkManager_GAME : MonoBehaviour {
 			Screen.showCursor = true;
 			Screen.lockCursor = false;
 		}
-
-		//			Screen.lockCursor = false;
-
-//		//MENU
-//		if (PhotonNetwork.connected == false && inGameMenu == false) {
-//			Screen.showCursor = true;
-//			Screen.lockCursor = false;
-//		}
-//		//GAME
-//		if (PhotonNetwork.connected == true && connecting == false) {
-//
-//			if (Input.GetButtonDown ("Menu")) {
-//				inGameMenu=true;
-//				inGameMenu_main=true;
-//				inGameMenu_charSelect=false;
-//			}
-//		}
 	}
 
 
