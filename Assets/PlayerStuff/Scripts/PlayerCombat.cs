@@ -22,6 +22,8 @@ public class PlayerCombat : MonoBehaviour {
 	List<GameObject> attackHitBoxes = new List<GameObject>();
 	FXManager fx = null;
 	bool fxIsOn=false;
+
+	public bool airAttackReady = true;
 	
 	void Start () {
 
@@ -55,7 +57,12 @@ public class PlayerCombat : MonoBehaviour {
 	
 	// Attack 1
 	void Update () {
-		
+
+		// If character touches ground, character is ready for next air-attack move
+		if (cc.isGrounded & !airAttackReady){
+			airAttackReady = true;
+		}
+
 		if (isInAttackChain && currentAttackChain != null) {
 			currentAttack = currentAttackChain.subAttacks[attackID];
 			currentAttackHitBox = currentAttackChain.attackChainHitBoxes[attackID];
@@ -150,8 +157,9 @@ public class PlayerCombat : MonoBehaviour {
 					if(Input.GetButton("WeakAttack") ) {
 							InitiateAttackChain(3);
 						}
-					else if (Input.GetButton("StrongAttack")) {
+					else if (Input.GetButton("StrongAttack") && airAttackReady) {
 							InitiateAttackChain(6);
+							airAttackReady = false;	// only one strong air attack per "jump"
 					}
 				}
 			}

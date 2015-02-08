@@ -97,7 +97,7 @@ public class DefaultCharacter : CharacterData {
 		weakAOEAttack_Air.hitDuration = 0.5f;
 		weakAOEAttack_Air.hasPlayerControl = true;
 		weakAOEAttack_Air.isAOE = true;
-		weakAOEAttack_Air.hitBox = hbx.HitBox_AOE_Big;
+		weakAOEAttack_Air.hitBox = hbx.HitBox_AOE_Air;
 		weakAOEAttack_Air.fxName = null;
 		
 		AttackChain weakAOEAttack_AirChain = new AttackChain (3);
