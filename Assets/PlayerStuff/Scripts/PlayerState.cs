@@ -37,6 +37,13 @@ public class PlayerState : MonoBehaviour {
 	Camera mainCam = null;
 	public GameObject head;
 
+	Color meshOriginalColor;
+	Color skMeshOriginalColor;
+	//private Material[] _mat;
+	MeshRenderer[] _meshRend;
+	SkinnedMeshRenderer[] _skMeshRend;
+	public float flashTimer = 0;
+
 	// Use this for initialization
 	void Start () {
 		cc = GetComponent<CharacterController>();
@@ -48,6 +55,26 @@ public class PlayerState : MonoBehaviour {
 		fx = GameObject.FindObjectOfType<FXManager> ();
 
 		mainCam = GameObject.FindWithTag("MainCamera").camera;
+
+		//
+		//this._mat = GetComponentsInChildren<MeshRenderer>().material;
+		//originalColor = GetComponentsInChildren<MeshRenderer>().material.color;
+
+		_meshRend = GetComponentsInChildren<MeshRenderer>();
+		_skMeshRend = GetComponentsInChildren<SkinnedMeshRenderer>();
+
+		if (_meshRend.Length >= 1){
+		meshOriginalColor = _meshRend[0].material.color;	// Assuming all the meshes renders on the object have similar colors
+		} else {
+			meshOriginalColor = Color.gray;
+		}
+
+		if (_meshRend.Length >= 1){
+			skMeshOriginalColor = _skMeshRend[0].material.color;	// Assuming all the meshes renders on the object have similar colors
+		} else {
+			skMeshOriginalColor = Color.gray;
+		}
+
 	}
 	
 	// Update is called once per frame
@@ -128,9 +155,43 @@ public class PlayerState : MonoBehaviour {
 		 * Setting Animation Variables
 		 */
 		if (knockoutTime > 0) {
-			anim.SetBool ("IsHit", true);		
+			anim.SetBool ("IsHit", true);
+
+			/*	if (flashTimer < 0.1f && flashTimer >= 0){ */ //The /**/ commented bits enables "flashing" of colours - doesnt look good
+
+					foreach(MeshRenderer m in _meshRend){
+						m.material.color = Color.red;
+					}
+					foreach(SkinnedMeshRenderer m in _skMeshRend){
+						m.material.color = Color.red;
+					}
+
+			/*	}else if(flashTimer < 0){
+
+					foreach(MeshRenderer m in _meshRend){
+						m.material.color = meshOriginalColor;
+					}
+					foreach(SkinnedMeshRenderer m in _skMeshRend){
+						m.material.color = skMeshOriginalColor;
+					}
+			
+				}else{
+					flashTimer = -0.1f;
+				}
+
+		flashTimer = flashTimer + Time.deltaTime;
+			*/
 		} else {
 			anim.SetBool ("IsHit", false);
+
+
+			foreach(MeshRenderer m in _meshRend){
+				m.material.color = meshOriginalColor;
+			}
+			foreach(SkinnedMeshRenderer m in _skMeshRend){
+				m.material.color = skMeshOriginalColor;
+			}
+
 		}
 		//Flinch
 		
@@ -175,6 +236,8 @@ public class PlayerState : MonoBehaviour {
 
 		Debug.Log ("Added: " + hitVelocity);
 
+		// Calling flashing-mesh coroutine - coroutine broken atm, causes crash
+		//StartCoroutine(FlashMesh("red",knockoutTime,10));
 
 	}
 
@@ -210,6 +273,63 @@ public class PlayerState : MonoBehaviour {
 
 
 		}
+	}
+
+	//Coroutine for flashing the mesh - not finished, causes crash if called!
+	IEnumerator FlashMesh (string colorCode, float timeDuration, float flashPerSec){
+
+		float elapsedTime = 0f;
+		bool switcher = true;
+
+		float switchTimer = 1 / flashPerSec;
+		float currTime = 0;
+
+		if (colorCode == "red"){
+
+			while(elapsedTime < timeDuration){
+
+				if (switcher){ //Red color
+					foreach(MeshRenderer m in _meshRend){
+						m.material.color = Color.red;
+					}
+					foreach(SkinnedMeshRenderer m in _skMeshRend){
+						m.material.color = Color.red;
+					}
+					currTime = currTime + Time.deltaTime;
+
+					////
+					if (currTime > switchTimer){
+						switcher = false;
+					}
+
+				}else{ //Back to original color
+					foreach(MeshRenderer m in _meshRend){
+						m.material.color = meshOriginalColor;
+					}
+					foreach(SkinnedMeshRenderer m in _skMeshRend){
+						m.material.color = skMeshOriginalColor;
+					}
+					currTime = currTime - Time.deltaTime;
+					
+					////
+					if (currTime < 0){
+						switcher = false;
+					}
+
+				}
+
+
+			}
+		// insert other color codes here
+		}
+
+		foreach(MeshRenderer m in _meshRend){
+			m.material.color = meshOriginalColor;
+		}
+		foreach(SkinnedMeshRenderer m in _skMeshRend){
+			m.material.color = skMeshOriginalColor;
+		}
+		yield return null;
 	}
 
 
