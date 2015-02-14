@@ -24,6 +24,7 @@ public class PlayerCombat : MonoBehaviour {
 	bool fxIsOn=false;
 
 	public bool airAttackReady = true;
+
 	
 	void Start () {
 
@@ -62,6 +63,10 @@ public class PlayerCombat : MonoBehaviour {
 		if (cc.isGrounded & !airAttackReady){
 			airAttackReady = true;
 		}
+
+		//Ground-checking ray
+		Ray groundRay = new Ray(gameObject.transform.position+new Vector3(0,1,0), Vector3.down);
+		RaycastHit groundHit;
 
 		if (isInAttackChain && currentAttackChain != null) {
 			currentAttack = currentAttackChain.subAttacks[attackID];
@@ -157,7 +162,7 @@ public class PlayerCombat : MonoBehaviour {
 					if(Input.GetButton("WeakAttack") ) {
 							InitiateAttackChain(3);
 						}
-					else if (Input.GetButton("StrongAttack") && airAttackReady) {
+					else if (Input.GetButton("StrongAttack") && airAttackReady && !(Physics.Raycast(groundRay, out groundHit, 2.5f) && groundHit.collider.tag!="Player")) {
 							InitiateAttackChain(6);
 							airAttackReady = false;	// only one strong air attack per "jump"
 					}

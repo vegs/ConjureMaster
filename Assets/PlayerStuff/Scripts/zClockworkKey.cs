@@ -55,7 +55,9 @@ public class zClockworkKey : MonoBehaviour {
 			transform.Rotate (0,0,Time.deltaTime*medSpeed);
 		}
 		else if (stateInfo.IsName("SmashFwd")||		    
-		         stateInfo.IsName("StrongAOE")){
+		         stateInfo.IsName("StrongAOE")||
+			     stateInfo.IsName("Weak Air")||
+			     stateInfo.IsName("Strong Air")){
 
 			transform.Rotate (0,0,Time.deltaTime*fastSpeed);
 		}

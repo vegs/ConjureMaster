@@ -9,6 +9,7 @@ public class FXManager : MonoBehaviour {
 	public GameObject NormalStarFX_Prefab;
 	public GameObject TrailingSmokeFX_Prefab;
 	public GameObject SpinningSwishFX_Prefab;
+	public GameObject JumpingShockFX_Prefab;
 	
 
 	[RPC]
@@ -31,7 +32,9 @@ public class FXManager : MonoBehaviour {
 			case "AOESwishFX":
 				SpinningSwish(origin);
 			break;
-
+			case "JumpingShockFX":
+				JumpingShock(origin);
+			break;
 
 		default:
 				Debug.Log ("No FX name match");
@@ -105,10 +108,14 @@ public class FXManager : MonoBehaviour {
 	/////////
 	}	
 
+	public void JumpingShock (Vector3 origin){
+		GameObject SmokeFX = (GameObject)Instantiate (JumpingShockFX_Prefab, origin, Quaternion.identity);
+	}
+
 
 	// smoke effects
 	public void AOESmokeFX (Vector3 origin){
-		GameObject SmokeFX = (GameObject)Instantiate (AOESlamSmokeFX_Prefab, origin, Quaternion.identity);
+		GameObject JumpShockFX = (GameObject)Instantiate (AOESlamSmokeFX_Prefab, origin, Quaternion.identity);
 	}
 
 	public void FlinchHit (Vector3 position){

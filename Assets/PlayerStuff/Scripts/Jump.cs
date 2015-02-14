@@ -16,6 +16,8 @@ public class Jump : MonoBehaviour {
 	public float jumpDelay = 0.5f;
 
 	Collider someCollider = null;
+
+	FXManager fx = null;
 		
 
 	// Use this for initialization
@@ -25,6 +27,7 @@ public class Jump : MonoBehaviour {
 		cc=GetComponent<CharacterController>();
 		pm = GetComponent<PlayerMovement>();
 		wc = GetComponentInChildren<WallCheck> ();
+		fx = GameObject.FindObjectOfType<FXManager> ();
 	}
 	
 	// Update is called once per frame
@@ -61,6 +64,7 @@ public class Jump : MonoBehaviour {
 				canJumpAir=false;
 				ps.Jump(jumpSpeed);
 				anim.SetBool("DoubleJump", true);
+				fx.GetComponent<PhotonView>().RPC ("PlayFX", PhotonTargets.All, "JumpingShockFX",this.transform.position, this.transform.position);
 
 			}
 		}

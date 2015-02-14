@@ -159,13 +159,13 @@ public class PlayerState : MonoBehaviour {
 
 			/*	if (flashTimer < 0.1f && flashTimer >= 0){ */ //The /**/ commented bits enables "flashing" of colours - doesnt look good
 
-					foreach(MeshRenderer m in _meshRend){
+		/*			foreach(MeshRenderer m in _meshRend){
 						m.material.color = Color.red;
 					}
 					foreach(SkinnedMeshRenderer m in _skMeshRend){
 						m.material.color = Color.red;
 					}
-
+		*/
 			/*	}else if(flashTimer < 0){
 
 					foreach(MeshRenderer m in _meshRend){
@@ -184,14 +184,14 @@ public class PlayerState : MonoBehaviour {
 		} else {
 			anim.SetBool ("IsHit", false);
 
-
+			/*
 			foreach(MeshRenderer m in _meshRend){
 				m.material.color = meshOriginalColor;
 			}
 			foreach(SkinnedMeshRenderer m in _skMeshRend){
 				m.material.color = skMeshOriginalColor;
 			}
-
+			*/
 		}
 		//Flinch
 		
@@ -236,8 +236,8 @@ public class PlayerState : MonoBehaviour {
 
 		Debug.Log ("Added: " + hitVelocity);
 
-		// Calling flashing-mesh coroutine - coroutine broken atm, causes crash
-		//StartCoroutine(FlashMesh("red",knockoutTime,10));
+		// Calling flashing-mesh coroutine
+		StartCoroutine(FlashMesh("red",0.2f,10));
 
 	}
 
@@ -275,7 +275,7 @@ public class PlayerState : MonoBehaviour {
 		}
 	}
 
-	//Coroutine for flashing the mesh - not finished, causes crash if called!
+	//Coroutine for flashing the mesh
 	IEnumerator FlashMesh (string colorCode, float timeDuration, float flashPerSec){
 
 		float elapsedTime = 0f;
@@ -313,12 +313,14 @@ public class PlayerState : MonoBehaviour {
 					
 					////
 					if (currTime < 0){
-						switcher = false;
+						switcher = true;
 					}
 
 				}
 
+				elapsedTime = elapsedTime + Time.deltaTime;
 
+				yield return null;
 			}
 		// insert other color codes here
 		}
